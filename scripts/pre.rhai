@@ -11,6 +11,30 @@ if file::exists("cliff.toml") {
     print("📝 Updated cliff.toml with project details");
 }
 
+// Update GitHub workflows and templates
+let github_files = [
+    ".github/workflows/cd.yml",
+    ".github/workflows/ci.yml",
+    ".github/ISSUE_TEMPLATE/config.yml",
+    ".github/ISSUE_TEMPLATE/bug_report.md",
+    ".github/ISSUE_TEMPLATE/feature_request.md"
+];
+
+for file_path in github_files {
+    if file::exists(file_path) {
+        let content = file::read(file_path);
+        let updated_content = content
+            .replace("{{project-name}}", project_name)
+            .replace("<GITHUB_USER>", github_user)
+            .replace("<PROJECT_NAME>", project_name)
+            .replace("<CRATE>", project_name)
+            .replace("rusty-tempate", project_name);
+
+        file::write(file_path, updated_content);
+        print("📝 Updated " + file_path);
+    }
+}
+
 // Handle license file content based on selection
 if variable::get("license") == "Apache-2.0" {
     let apache_content = `
