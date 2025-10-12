@@ -1,6 +1,5 @@
 [template]
 cargo_generate_version = ">=0.10.0"
-exclude = ["cliff.toml"]
 
 [placeholders.author_name]
 type = "string"
