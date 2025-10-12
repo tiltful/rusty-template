@@ -1,7 +1,7 @@
 [template]
 cargo_generate_version = ">=0.10.0"
 
-[placeholders.authors]
+[placeholders.author_name]
 type = "string"
 prompt = "🧑‍💻 Author name and email (e.g., 'John Doe <john@example.com>')"
 default = "t1ltxz-gxd <git@t1ltxz.ninja>"
