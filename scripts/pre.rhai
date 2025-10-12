@@ -29,7 +29,7 @@ let github_files = [
 
 for file_path in github_files {
     try {
-        let content = read_file(file_path);
+        let content = file::read(file_path);
         let updated_content = content
             .replace("{{project-name}}", project_name)
             .replace("<GITHUB_USER>", github_user)
@@ -37,7 +37,7 @@ for file_path in github_files {
             .replace("<CRATE>", project_name)
             .replace("rusty-tempate", project_name);
 
-        write_file(file_path, updated_content);
+        file::write(file_path, updated_content);
         print("📝 Updated " + file_path);
     } catch {
         print("⚠️ " + file_path + " not found, skipping...");
