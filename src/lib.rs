@@ -46,10 +46,10 @@
     clippy::struct_excessive_bools
 )]
 #![doc(
-    html_logo_url = "https://raw.githubusercontent.com/{{github_username}}/{{repository_name}}/main/assets/images/logo.png"
+    html_logo_url = "https://raw.githubusercontent.com/{{github_username}}/{{project-name}}/main/assets/images/logo.png"
 )]
 #![doc(
-    html_favicon_url = "https://raw.githubusercontent.com/{{github_username}}/{{repository_name}}/main/assets/images/favicon.png"
+    html_favicon_url = "https://raw.githubusercontent.com/{{github_username}}/{{project-name}}/main/assets/images/favicon.png"
 )]
 
 /// Adds two `u64` numbers and returns the result.
