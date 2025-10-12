@@ -1,4 +1,4 @@
-ARG APP_NAME=rusty-template
+ARG APP_NAME={{project-name}}
 
 FROM rust:slim-bullseye AS builder
 ARG APP_NAME
