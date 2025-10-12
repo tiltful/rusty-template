@@ -4,15 +4,18 @@ let project_name = variable::get("project-name");
 let github_user = variable::get("github_username");
 let author = variable::get("author_name");
 
-// Update cliff.toml
-if exists("cliff.toml") {
-    let cliff_content = read_file("cliff.toml");
+// Update cliff.toml if exists
+let cliff_content = "";
+try {
+    cliff_content = read_file("cliff.toml");
     let updated_content = cliff_content
         .replace("<GITHUB_USER>", github_user)
         .replace("<PROJECT_NAME>", project_name);
 
     write_file("cliff.toml", updated_content);
     print("📝 Updated cliff.toml with project details");
+} catch {
+    print("⚠️ cliff.toml not found, skipping...");
 }
 
 // Update GitHub workflows
@@ -25,7 +28,7 @@ let github_files = [
 ];
 
 for file_path in github_files {
-    if exists(file_path) {
+    try {
         let content = read_file(file_path);
         let updated_content = content
             .replace("{{project-name}}", project_name)
@@ -36,6 +39,8 @@ for file_path in github_files {
 
         write_file(file_path, updated_content);
         print("📝 Updated " + file_path);
+    } catch {
+        print("⚠️ " + file_path + " not found, skipping...");
     }
 }
 
