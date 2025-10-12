@@ -1,12 +1,12 @@
 [package]
 # cargo-generate template - placeholders will be replaced during generation
-name = "rusty-template"
+name = "{{project-name}}"
 version = "0.0.0"
 edition = "2024"
 authors = ["{{author_name}}"]
 description = "{{description}}"
 license = "{{license}}"
-repository = "https://github.com/{{github_username}}/{{repository_name}}"
+repository = "https://github.com/{{github_username}}/{{project-name}}"
 keywords = ["rust", "template"]
 categories = ["development-tools", "command-line-utilities"]
 readme = "README.md"
