@@ -62,9 +62,9 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/rusty-template:latest,${{ secrets.DOCKER_USERNAME }}/rusty-template:${{ steps.get-version.outputs.version }},${{ secrets.DOCKER_USERNAME }}/rusty-template:${{ github.sha }}
-          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/rusty-template:buildcache
-          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/rusty-template:buildcache,mode=max
+          tags: ${{ secrets.DOCKER_USERNAME }}/{{project-name}}:latest,${{ secrets.DOCKER_USERNAME }}/{{project-name}}:${{ steps.get-version.outputs.version }},${{ secrets.DOCKER_USERNAME }}/{{project-name}}:${{ github.sha }}
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/{{project-name}}:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/{{project-name}}:buildcache,mode=max
 
   build-linux:
     needs: deploy
@@ -88,7 +88,7 @@ jobs:
       - name: Package binary
         run: |
           mkdir -p dist
-          BIN_NAME="rusty-template"
+          BIN_NAME="{{project-name}}"
           FILE_NAME="${BIN_NAME}-x86_64-unknown-linux-gnu"
           tar -czvf "dist/$FILE_NAME.tar.gz" -C "target/x86_64-unknown-linux-gnu/release" "$BIN_NAME"
 
@@ -126,7 +126,7 @@ jobs:
 
       - name: Package binary
         run: |
-          $BIN_NAME = "rusty-template"
+          $BIN_NAME = "{{project-name}}"
           $FILE_NAME = "$BIN_NAME-x86_64-pc-windows-gnu"
           mkdir dist
           Compress-Archive -Path "target\x86_64-pc-windows-gnu\release\$BIN_NAME.exe" -DestinationPath "dist\$FILE_NAME.zip"
@@ -161,7 +161,7 @@ jobs:
       - name: Package binary
         run: |
           mkdir -p dist
-          BIN_NAME="rusty-template"
+          BIN_NAME="{{project-name}}"
           FILE_NAME="${BIN_NAME}-x86_64-apple-darwin"
           tar -czvf "dist/$FILE_NAME.tar.gz" -C "target/x86_64-apple-darwin/release" "$BIN_NAME"
 
