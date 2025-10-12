@@ -3,32 +3,32 @@ cargo_generate_version = ">=0.10.0"
 
 [placeholders.project-name]
 type = "string"
-prompt = "What is the name of your project?"
+prompt = "📦 What is the name of your project?"
 regex = "^[a-zA-Z][a-zA-Z0-9_-]*$"
 
 [placeholders.authors]
 type = "string"
-prompt = "Author name and email (e.g., 'John Doe <john@example.com>')"
+prompt = "🧑‍💻 Author name and email (e.g., 'John Doe <john@example.com>')"
 default = "Your Name <your@email.com>"
 
 [placeholders.description]
 type = "string"
-prompt = "Project description"
+prompt = "✏️ Project description"
 default = ""
 
 [placeholders.github_username]
 type = "string"
-prompt = "GitHub username"
+prompt = "😎 GitHub username"
 regex = "^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$"
 
 [placeholders.repository_name]
 type = "string"
-prompt = "Repository name"
+prompt = "🔥 Repository name"
 default = "{{project-name}}"
 
 [placeholders.license]
 type = "string"
-prompt = "License"
+prompt = "⭐ License"
 choices = ["MIT", "Apache-2.0", "GPL-3.0", "BSD-3-Clause"]
 default = "MIT"
 
