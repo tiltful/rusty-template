@@ -7,7 +7,7 @@ let author = variable::get("author_name");
 // Update cliff.toml if exists
 let cliff_content = "";
 try {
-    cliff_content = read_file("cliff.toml");
+    cliff_content = file::read("cliff.toml");
     let updated_content = cliff_content
         .replace("<GITHUB_USER>", github_user)
         .replace("<PROJECT_NAME>", project_name);
