@@ -1,5 +1,5 @@
 [template]
-cargo_generate_version = ">=0.10.0"
+cargo_generate_version = ">=0.21.0"
 
 [placeholders.author_name]
 type = "string"
