@@ -5,13 +5,13 @@ let github_user = variable::get("github_username");
 let author = variable::get("author_name");
 
 // Update cliff.toml with correct GitHub user and project name
-if file::exists("cliff.toml") {
-    let cliff_content = file::read("cliff.toml");
+if path_exists("cliff.toml") {
+    let cliff_content = read_file("cliff.toml");
     let updated_content = cliff_content
-        .replace("<GITHUB_USER>", variable::get("github_username"))
-        .replace("<PROJECT_NAME>", variable::get("project-name"));
+        .replace("<GITHUB_USER>", github_user)
+        .replace("<PROJECT_NAME>", project_name);
 
-    file::write("cliff.toml", updated_content);
+    write_file("cliff.toml", updated_content);
     print("📝 Updated cliff.toml with project details");
 }
 
@@ -25,8 +25,8 @@ let github_files = [
 ];
 
 for file_path in github_files {
-    if file::exists(file_path) {
-        let content = file::read(file_path);
+    if path_exists(file_path) {
+        let content = read_file(file_path);
         let updated_content = content
             .replace("{{project-name}}", project_name)
             .replace("<GITHUB_USER>", github_user)
@@ -34,7 +34,7 @@ for file_path in github_files {
             .replace("<CRATE>", project_name)
             .replace("rusty-tempate", project_name);
 
-        file::write(file_path, updated_content);
+        write_file(file_path, updated_content);
         print("📝 Updated " + file_path);
     }
 }
