@@ -9,7 +9,7 @@ regex = "^[a-zA-Z][a-zA-Z0-9_-]*$"
 [placeholders.authors]
 type = "string"
 prompt = "🧑‍💻 Author name and email (e.g., 'John Doe <john@example.com>')"
-default = "Your Name <your@email.com>"
+default = "t1ltxz-gxd <git@t1ltxz.ninja>"
 
 [placeholders.description]
 type = "string"
@@ -20,6 +20,7 @@ default = ""
 type = "string"
 prompt = "😎 GitHub username"
 regex = "^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$"
+default = "t1ltxz-gxd"
 
 [placeholders.repository_name]
 type = "string"
