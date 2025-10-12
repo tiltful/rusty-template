@@ -4,8 +4,8 @@ let project_name = variable::get("project-name");
 let github_user = variable::get("github_username");
 let author = variable::get("author_name");
 
-// Update cliff.toml with correct GitHub user and project name
-if path_exists("cliff.toml") {
+// Update cliff.toml
+if exists("cliff.toml") {
     let cliff_content = read_file("cliff.toml");
     let updated_content = cliff_content
         .replace("<GITHUB_USER>", github_user)
@@ -15,7 +15,7 @@ if path_exists("cliff.toml") {
     print("📝 Updated cliff.toml with project details");
 }
 
-// Update GitHub workflows and templates
+// Update GitHub workflows
 let github_files = [
     ".github/workflows/cd.yml",
     ".github/workflows/ci.yml",
@@ -25,7 +25,7 @@ let github_files = [
 ];
 
 for file_path in github_files {
-    if path_exists(file_path) {
+    if exists(file_path) {
         let content = read_file(file_path);
         let updated_content = content
             .replace("{{project-name}}", project_name)
