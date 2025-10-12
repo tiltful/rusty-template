@@ -1,6 +1,6 @@
 [package]
 # cargo-generate template - placeholders will be replaced during generation
-name = "{{project-name}}"
+name = "rusty-template"
 version = "0.0.0"
 edition = "2024"
 authors = ["{{author_name}}"]
