@@ -1,5 +1,16 @@
 print("✅ Starting project generation...");
 
+// Update cliff.toml with correct GitHub user and project name
+if file::exists("cliff.toml") {
+    let cliff_content = file::read("cliff.toml");
+    let updated_content = cliff_content
+        .replace("<GITHUB_USER>", variable::get("github_username"))
+        .replace("<PROJECT_NAME>", variable::get("project-name"));
+
+    file::write("cliff.toml", updated_content);
+    print("📝 Updated cliff.toml with project details");
+}
+
 // Handle license file content based on selection
 if variable::get("license") == "Apache-2.0" {
     let apache_content = `
