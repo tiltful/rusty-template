@@ -1,5 +1,9 @@
 print("✅ Starting project generation...");
 
+let project_name = variable::get("project-name");
+let github_user = variable::get("github_username");
+let author = variable::get("author_name");
+
 // Update cliff.toml with correct GitHub user and project name
 if file::exists("cliff.toml") {
     let cliff_content = file::read("cliff.toml");
