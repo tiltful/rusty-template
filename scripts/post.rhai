@@ -1,3 +1,15 @@
+let cliff_path = "cliff.toml";
+
+// Replace placeholders in cliff.toml
+if (path_exists(cliff_path)) {
+    let content = read_file(cliff_path);
+    let replaced = content
+        .replace("<GITHUB_USER>", project_variable("github_username"))
+        .replace("<PROJECT_NAME>", project_name());
+    write_file(cliff_path, replaced);
+}
+
+
 // Initialize git repository
 system::exec("git", ["init"]);
 
