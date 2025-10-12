@@ -35,5 +35,6 @@ ignore = ["LICENSE-APACHE"]
 ignore = ["LICENSE-MIT"]
 
 [hooks]
-pre = ["pre-script.rhai"]
-post = ["post-script.rhai"]
+init = ["scripts/init.rhai"]
+pre = ["scripts/pre.rhai"]
+post = ["scripts/post.rhai"]
