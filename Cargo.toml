@@ -1,10 +1,11 @@
 [package]
-name = "rusty-template"
+# cargo-generate template - placeholders will be replaced during generation
+name = "{{project-name}}"
 version = "0.0.0"
 edition = "2024"
-authors = ["Your Name  <your@email.com>"]
-description = "A Rust template project"
-license = "MIT"
+authors = ["{{author_name}}"]
+description = "{{description}}"
+license = "{{license}}"
 repository = "https://github.com/{{github_username}}/{{repository_name}}"
 keywords = ["rust", "template"]
 categories = ["development-tools", "command-line-utilities"]
