@@ -1,8 +1,3 @@
-import "file" as file;
-import "path" as path;
-import "variable" as variable;
-import "template" as template;
-
 print("✅ Starting project generation...");
 
 let project_name = variable::get("project-name");
