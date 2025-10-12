@@ -17,11 +17,6 @@ prompt = "😎 GitHub username"
 regex = "^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$"
 default = "t1ltxz-gxd"
 
-[placeholders.repository_name]
-type = "string"
-prompt = "🔥 Repository name"
-default = "{{project-name}}"
-
 [placeholders.license]
 type = "string"
 prompt = "⭐ License"
