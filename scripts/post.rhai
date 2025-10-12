@@ -8,7 +8,7 @@ if system::which("cargo").is_some() {
 
 // Add initial commit
 system::exec("git", ["add", "."]);
-system::exec("git", ["commit", "-m", "Initial commit from rusty-template"]);
+system::exec("git", ["commit", "-m", "🎉 feat: initial commit"]);
 
 print("🎉 Project generated successfully!");
 print("📁 Generated files have been formatted and committed to git");
