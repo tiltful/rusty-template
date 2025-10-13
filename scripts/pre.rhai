@@ -34,7 +34,6 @@ for file_path in github_files {
             .replace("{{project-name}}", project_name)
             .replace("<GITHUB_USER>", github_user)
             .replace("<PROJECT_NAME>", project_name)
-            .replace("<CRATE>", project_name)
             .replace("rusty-tempate", project_name);
 
         file::write(file_path, updated_content);
