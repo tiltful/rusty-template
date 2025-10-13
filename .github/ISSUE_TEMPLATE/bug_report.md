@@ -14,10 +14,10 @@ Thank you for reporting an issue! Please complete as much of the template as pos
 ### Version
 
 <!--
-List all versions of the <CRATE> crates you're using. 
+List all versions of the {{project-name}} crates you're using. 
 The easiest way to gather this is by running cargo tree:
 
-`cargo tree | grep <CRATE>`
+`cargo tree | grep {{project-name}}`
 -->
 
 ### Platform
