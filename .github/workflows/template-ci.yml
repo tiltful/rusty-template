@@ -170,7 +170,7 @@ jobs:
           license="${{ matrix.license }}"
           copyright_holder="Tilt"
           copyright_year="2026"
-          architecture=${{ matrix.architecture }}
+          architecture="${{ matrix.architecture }}"
           use_tokio=${{ matrix.use_tokio }}
           use_tracing=${{ matrix.use_tracing }}
           use_axum=${{ matrix.use_axum }}
@@ -282,7 +282,7 @@ jobs:
           license="MIT"
           copyright_holder="Tilt"
           copyright_year="2026"
-          architecture=minimal
+          architecture="minimal"
           use_tokio=true
           use_tracing=true
           use_axum=true
