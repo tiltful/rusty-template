@@ -27,6 +27,7 @@ jobs:
         include:
           - name: binary-default
             crate_type: bin
+            architecture: minimal
             license: MIT
             use_tokio: true
             use_tracing: true
@@ -37,6 +38,7 @@ jobs:
             use_config: false
           - name: binary-axum
             crate_type: bin
+            architecture: minimal
             license: MIT
             use_tokio: true
             use_tracing: true
@@ -47,6 +49,7 @@ jobs:
             use_config: false
           - name: binary-axum-no-tracing
             crate_type: bin
+            architecture: minimal
             license: MIT
             use_tokio: false
             use_tracing: false
@@ -57,6 +60,7 @@ jobs:
             use_config: false
           - name: library
             crate_type: lib
+            architecture: minimal
             license: Apache-2.0
             use_tokio: false
             use_tracing: false
@@ -67,6 +71,7 @@ jobs:
             use_config: false
           - name: binary-minimal
             crate_type: bin
+            architecture: minimal
             license: MIT
             use_tokio: false
             use_tracing: false
@@ -77,6 +82,7 @@ jobs:
             use_config: false
           - name: binary-config-only
             crate_type: bin
+            architecture: minimal
             license: MIT
             use_tokio: false
             use_tracing: false
@@ -85,8 +91,31 @@ jobs:
             use_redis: false
             use_reqwest: false
             use_config: true
+          - name: binary-modular
+            crate_type: bin
+            architecture: modular
+            license: MIT
+            use_tokio: false
+            use_tracing: false
+            use_axum: false
+            use_sqlx: false
+            use_redis: false
+            use_reqwest: false
+            use_config: false
+          - name: binary-ddd-axum
+            crate_type: bin
+            architecture: ddd
+            license: MIT
+            use_tokio: false
+            use_tracing: true
+            use_axum: true
+            use_sqlx: false
+            use_redis: false
+            use_reqwest: false
+            use_config: false
           - name: binary-integrations
             crate_type: bin
+            architecture: minimal
             license: MIT
             use_tokio: false
             use_tracing: true
@@ -130,6 +159,7 @@ jobs:
           license="${{ matrix.license }}"
           copyright_holder="Tilt"
           copyright_year="2026"
+          architecture=${{ matrix.architecture }}
           use_tokio=${{ matrix.use_tokio }}
           use_tracing=${{ matrix.use_tracing }}
           use_axum=${{ matrix.use_axum }}
@@ -178,6 +208,24 @@ jobs:
             grep -q '^\[tasks.run\]' "$project/Makefile.toml"
             grep -q '^\[tasks.docker-build\]' "$project/Makefile.toml"
           fi
+          if [ "${{ matrix.architecture }}" = "modular" ]; then
+            test -f "$project/src/app.rs"
+            test -f "$project/src/state.rs"
+            test -f "$project/src/presentation.rs"
+            test ! -e "$project/src/domain"
+            test ! -e "$project/src/infrastructure"
+          elif [ "${{ matrix.architecture }}" = "ddd" ]; then
+            test -f "$project/src/application/mod.rs"
+            test -f "$project/src/domain/mod.rs"
+            test -f "$project/src/infrastructure/mod.rs"
+            test -f "$project/src/state.rs"
+            test -f "$project/src/presentation.rs"
+            test ! -e "$project/src/app.rs"
+          else
+            test ! -e "$project/src/state.rs"
+            test ! -e "$project/src/domain"
+            test ! -e "$project/src/infrastructure"
+          fi
           python3 - <<'PY'
           import pathlib
           import tomllib
@@ -223,6 +271,7 @@ jobs:
           license="MIT"
           copyright_holder="Tilt"
           copyright_year="2026"
+          architecture=minimal
           use_tokio=true
           use_tracing=true
           use_axum=true
