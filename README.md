@@ -59,4 +59,4 @@ Any contributions you make are **greatly appreciated**.
 
 Released with ❤️ by [{{authors}}](https://github.com/{{github_username}}).
 
-<!-- generated with cargo-generate thanks by <t1ltxz.gxd?> -->
+<!-- generated with cargo-generate thanks by <Tilt?> -->
