@@ -23,8 +23,11 @@ SHORTCODE = re.compile(r"^:[a-z0-9_+-]+:$", re.IGNORECASE)
 
 def is_gitmoji(token: str) -> bool:
     # Accept Unicode Gitmoji and their canonical :shortcode: representation.
-    return bool(SHORTCODE.fullmatch(token)) or any(
-        unicodedata.category(char) in {"So", "Sm", "Sk"} for char in token
+    if SHORTCODE.fullmatch(token):
+        return True
+    categories = [unicodedata.category(char) for char in token]
+    return categories.count("So") == 1 and all(
+        category in {"So", "Mn", "Me", "Cf", "Sk"} for category in categories
     )
 
 
@@ -46,6 +49,7 @@ def validate(message: str) -> tuple[bool, str]:
             if re.match(r"^(?:🚨 )?breaking[ -]change(?:: | #)", candidate, re.IGNORECASE):
                 if not (
                     candidate.startswith("🚨 BREAKING CHANGE: ")
+                    or candidate.startswith("BREAKING CHANGE: ")
                     or candidate.startswith("BREAKING-CHANGE: ")
                     or candidate.startswith("BREAKING-CHANGE #")
                 ):
@@ -60,9 +64,11 @@ def validate(message: str) -> tuple[bool, str]:
             footer = FOOTER.fullmatch(line)
             if footer:
                 token = footer.group("token")
-                if token.lower() == "breaking-change" and token != "BREAKING-CHANGE":
-                    return False, "BREAKING-CHANGE footer token must be uppercase"
-                if token == "🚨 BREAKING CHANGE" and not footer.group("value"):
+                if token.lower().replace("-", " ") == "breaking change" and token not in {
+                    "🚨 BREAKING CHANGE", "BREAKING CHANGE", "BREAKING-CHANGE"
+                }:
+                    return False, "BREAKING CHANGE footer token must be uppercase"
+                if token in {"🚨 BREAKING CHANGE", "BREAKING CHANGE", "BREAKING-CHANGE"} and not footer.group("value"):
                     return False, "BREAKING CHANGE footer requires a description"
             elif index == 0:
                 return False, "invalid footer"
