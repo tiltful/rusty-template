@@ -110,12 +110,12 @@ jobs:
       - name: Generate project
         run: |
           cat > "${{ runner.temp }}/template-values.txt" <<'EOF'
-          author_name=Tilt <git@tilt.ninja>
-          description=Generated template smoke test
-          github_username=tiltful
+          author_name="Tilt <git@tilt.ninja>"
+          description="Generated template smoke test"
+          github_username="tiltful"
           license=${{ matrix.license }}
-          copyright_holder=Tilt
-          copyright_year=2026
+          copyright_holder="Tilt"
+          copyright_year="2026"
           use_tokio=${{ matrix.use_tokio }}
           use_tracing=${{ matrix.use_tracing }}
           use_axum=${{ matrix.use_axum }}
@@ -199,12 +199,12 @@ jobs:
       - name: Generate security fixture
         run: |
           cat > "${{ runner.temp }}/security-values.txt" <<'EOF'
-          author_name=Tilt <git@tilt.ninja>
-          description=Security validation fixture
-          github_username=tiltful
-          license=MIT
-          copyright_holder=Tilt
-          copyright_year=2026
+          author_name="Tilt <git@tilt.ninja>"
+          description="Security validation fixture"
+          github_username="tiltful"
+          license="MIT"
+          copyright_holder="Tilt"
+          copyright_year="2026"
           use_tokio=true
           use_tracing=true
           use_axum=false
