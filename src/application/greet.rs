@@ -1,6 +1,6 @@
 //! Greeting use case.
 
-use crate::domain::{Greeting, GreetingRepository};
+use crate::domain::{Greeting, GreetingError, GreetingRepository};
 
 /// Application use case that retrieves a greeting through a domain port.
 #[derive(Clone, Debug)]
@@ -20,7 +20,7 @@ where
 
     /// Executes the use case.
     #[must_use]
-    pub fn execute(&self) -> Greeting {
+    pub fn execute(&self) -> Result<Greeting, GreetingError> {
         self.repository.greeting()
     }
 }
