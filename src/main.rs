@@ -116,12 +116,14 @@ async fn main() -> anyhow::Result<()> {
 fn main() {
     {% if use_tracing %}
     init_tracing();
-    tracing::info!("Application started");
-    {% else %}
-    println!("Hello from {{project-name}}!");
     {% endif %}
     {% if use_config %}
     init_integrations().expect("failed to initialize configuration");
+    {% endif %}
+    {% if use_tracing %}
+    tracing::info!("Application started");
+    {% else %}
+    println!("Hello from {{project-name}}!");
     {% endif %}
 }
 {% endif %}
