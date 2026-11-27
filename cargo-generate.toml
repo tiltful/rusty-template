@@ -1,6 +1,6 @@
 [template]
 cargo_generate_version = ">=0.24.0"
-ignore = ["Cargo.lock", "target", "__pycache__", ".venv"]
+ignore = ["Cargo.lock", "target", "__pycache__", ".venv", "cargo-generate.toml", "scripts", "tests", ".github/workflows/template-ci.yml", "LICENSE-MIT", "LICENSE-APACHE"]
 exclude = ["cliff.toml", "release.toml", ".github/workflows/ci.yml", ".github/workflows/template-ci.yml", ".github/workflows/release.yml"]
 
 [placeholders.author_name]
@@ -71,6 +71,11 @@ type = "bool"
 prompt = "Include config + dotenvy?"
 default = false
 
-[hooks]
-init = ["scripts/init.rhai"]
-post = ["scripts/post.rhai"]
+[conditional.'crate_type == "bin"']
+ignore = ["src/lib.rs", "benches"]
+
+[conditional.'crate_type == "lib"']
+ignore = ["src/main.rs", "Dockerfile", ".dockerignore", ".github/workflows/release.yml"]
+
+[conditional.'license == "MIT"']
+ignore = ["NOTICE"]
