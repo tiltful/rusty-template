@@ -92,7 +92,10 @@ jobs:
           components: clippy, rustfmt
       - name: Validate commit message format
         run: |
+          ls -la .commit-message.py tests/test_commit_message.py
           python3 -m py_compile .commit-message.py
+          printf '%s\\n' '♻️ refactor: simplify parser' > /tmp/commit-message-cli
+          python3 .commit-message.py /tmp/commit-message-cli
           python3 -m unittest discover -s tests -p 'test_*.py'
           printf '%s\n\n%s\n\n%s\n' '♻️ refactor(parser): simplify token handling' 'Explain why the parser change is needed.' 'Refs: #123' > /tmp/commit-message
           python3 .commit-message.py /tmp/commit-message
