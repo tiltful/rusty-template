@@ -73,5 +73,4 @@ default = false
 
 [hooks]
 init = ["scripts/init.rhai"]
-pre = ["scripts/pre.rhai"]
 post = ["scripts/post.rhai"]
