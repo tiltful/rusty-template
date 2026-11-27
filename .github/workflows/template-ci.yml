@@ -20,6 +20,7 @@ jobs:
   template-validation:
     name: ${{ matrix.name }}
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
@@ -104,7 +105,9 @@ jobs:
             exit 1
           fi
       - name: Install cargo-generate
-        run: cargo install cargo-generate --locked
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-generate
       - name: Generate project
         run: >-
           cargo generate --path . --name smoke-${{ matrix.name }}
@@ -191,7 +194,9 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - name: Install cargo-generate
-        run: cargo install cargo-generate --locked
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-generate
       - name: Generate security fixture
         run: >-
           cargo generate --path . --name security-smoke
@@ -213,10 +218,9 @@ jobs:
         working-directory: target/security-smoke
         run: cargo generate-lockfile
       - name: Install security tools
-        run: |
-          cargo install --locked cargo-audit
-          cargo install --locked cargo-deny
-          cargo install cargo-cyclonedx
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-audit,cargo-deny,cargo-cyclonedx
       - name: Audit advisories
         working-directory: target/security-smoke
         run: cargo audit
