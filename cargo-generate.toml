@@ -5,7 +5,7 @@ exclude = ['cliff.toml']
 [placeholders.author_name]
 type = "string"
 prompt = "Author name and email (e.g., 'John Doe <john@example.com>')"
-default = "t1ltxz-gxd <git@t1ltxz.ninja>"
+default = "tiltful <git@tilt.ninja>"
 
 [placeholders.description]
 type = "string"
@@ -16,7 +16,7 @@ default = ""
 type = "string"
 prompt = "GitHub username"
 regex = "^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$"
-default = "t1ltxz-gxd"
+default = "tiltful"
 
 [placeholders.license]
 type = "string"
