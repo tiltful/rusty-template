@@ -9,6 +9,7 @@ Install stable Rust with [rustup](https://rustup.rs/), then install the project 
 - cargo-make: `cargo install cargo-make`
 - pre-commit: follow the [pre-commit installation guide](https://pre-commit.com/#installation)
 - cargo-audit: `cargo install cargo-audit`
+- cargo-machete: `cargo install cargo-machete`
 - cargo-deny: `cargo install cargo-deny`
 - git-cliff: `cargo install git-cliff`
 - cargo-release: `cargo install cargo-release`
