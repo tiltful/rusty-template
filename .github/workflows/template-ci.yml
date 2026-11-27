@@ -102,6 +102,17 @@ jobs:
             use_redis: false
             use_reqwest: false
             use_config: false
+          - name: binary-ddd
+            crate_type: bin
+            architecture: ddd
+            license: MIT
+            use_tokio: false
+            use_tracing: false
+            use_axum: false
+            use_sqlx: false
+            use_redis: false
+            use_reqwest: false
+            use_config: false
           - name: binary-ddd-axum
             crate_type: bin
             architecture: ddd
