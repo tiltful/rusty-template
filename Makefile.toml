@@ -62,7 +62,8 @@ command = "cargo"
 args = ["nextest", "run"]
 
 [tasks.doc]
-description = "Build docs"
+description = "Build docs with warnings denied"
+env = { RUSTDOCFLAGS = "-D warnings" }
 command = "cargo"
 args = ["doc", "--no-deps"]
 
@@ -75,6 +76,11 @@ args = ["audit"]
 description = "Check dependency policy"
 command = "cargo"
 args = ["deny", "check"]
+
+[tasks.sbom]
+description = "Generate CycloneDX JSON SBOM"
+command = "cargo"
+args = ["cyclonedx", "--format", "json"]
 
 [tasks.pre-commit]
 description = "Run all hooks"

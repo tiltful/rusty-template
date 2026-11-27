@@ -12,9 +12,10 @@
 ## Features
 
 - Rust 2024, stable toolchain and unsafe-code prohibition
-- Selectable Tokio, tracing, Axum, SQLx, Redis, reqwest and config dependencies\n- Library and binary projects receive only the tasks and assets relevant to their crate type
+- Selectable Tokio, tracing, Axum, SQLx, Redis, reqwest and config dependencies
+- Binary and library projects receive only relevant tasks and assets
 - cargo-chef multi-stage Docker build with minimal scratch runtime
-- Formatting, Clippy, tests, auditing, changelog and cross-platform GitHub Releases
+- Formatting, Clippy, tests, security auditing, CycloneDX SBOM, changelog and cross-platform GitHub Releases
 
 ## Getting started
 
@@ -26,7 +27,8 @@ cargo test
 cargo make quality
 ```
 
-Install cargo-make with `cargo install cargo-make`.\n\nThe Tokio prompt controls the direct runtime dependency. Axum, SQLx, Redis and reqwest enable Tokio automatically when selected.
+Install cargo-make with `cargo install cargo-make`.
+Install optional security/release tools as needed: `cargo install --locked cargo-audit cargo-deny git-cliff cargo-release` and `cargo install cargo-cyclonedx`.
 
 Install the commit hooks with `pre-commit install --hook-type pre-commit --hook-type commit-msg`.
 

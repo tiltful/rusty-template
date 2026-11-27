@@ -13,6 +13,7 @@ Install stable Rust with [rustup](https://rustup.rs/), then install the project 
 - git-cliff: `cargo install git-cliff`
 - cargo-release: `cargo install cargo-release`
 - cargo-nextest: `cargo install cargo-nextest --locked`
+- cargo-cyclonedx: `cargo install cargo-cyclonedx`
 
 Install the Git hooks:
 
@@ -20,7 +21,8 @@ Install the Git hooks:
 pre-commit install --hook-type pre-commit --hook-type commit-msg
 ```
 
-Run `cargo make quality` before opening a pull request. Run `cargo make ci` when all optional tooling (cargo-audit, cargo-deny and git-cliff) is installed.\n\nThe commit-message validator is covered by `python3 -m unittest discover -s tests -p 'test_*.py'`.
+Run `cargo make quality` before opening a pull request. Run `cargo make ci` when all optional tooling is installed.
+The commit-message validator is covered by `python3 -m unittest discover -s tests -p 'test_*.py'`.
 
 ## Commit messages
 

@@ -25,12 +25,16 @@ RUN cargo chef cook --release --target x86_64-unknown-linux-musl --recipe-path r
 ARG APP_NAME
 COPY . .
 RUN cargo build --release \
-    --target x86_64-unknown-linux-musl --bin ${APP_NAME}
+    --target x86_64-unknown-linux-musl --bin ${APP_NAME} \
+    && mkdir -p /tmp && chmod 1777 /tmp
 
 FROM scratch AS runtime
 ARG APP_NAME
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 WORKDIR /app
+ENV PORT=3000
+ENV RUST_LOG=info
+COPY --from=builder --chown=10001:10001 /tmp /tmp
 COPY --from=builder /app/target/x86_64-unknown-linux-musl/release/${APP_NAME} /usr/local/bin/app
 USER 10001:10001
 ENTRYPOINT ["/usr/local/bin/app"]

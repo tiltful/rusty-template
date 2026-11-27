@@ -7,6 +7,8 @@ print("  3. Run: cargo make quality");
 if file::exists("Dockerfile") {
     print("  4. Build the container: docker build -t app .");
 }
+file::delete("tests/test_commit_message.py");
+file::delete("tests");
 file::delete("scripts/init.rhai");
 file::delete("scripts/pre.rhai");
 file::delete("scripts/post.rhai");

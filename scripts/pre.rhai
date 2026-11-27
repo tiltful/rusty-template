@@ -3,6 +3,10 @@ let license = variable::get("license");
 let project_name = variable::get("project-name");
 let github_user = variable::get("github_username");
 
+// Template-only infrastructure must not leak into generated projects.
+file::delete("cargo-generate.toml");
+file::delete(".github/workflows/ci.yml");
+
 if crate_type == "bin" {
     file::delete("src/lib.rs");
     file::delete("benches");
@@ -23,8 +27,6 @@ if license == "MIT" {
     file::rename("LICENSE-APACHE", "LICENSE");
 }
 
-// cargo-generate excludes these files from Liquid processing; resolve their
-// repository markers explicitly after the placeholders are known.
 if file::exists(".github/workflows/release.yml") {
     let content = file::read(".github/workflows/release.yml")
         .replace("__PROJECT_NAME__", project_name);
@@ -37,5 +39,3 @@ if file::exists("cliff.toml") {
         .replace("<PROJECT_NAME>", project_name);
     file::write("cliff.toml", content);
 }
-
-// Keep scripts until the post hook has completed.

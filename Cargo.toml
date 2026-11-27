@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2024"
 authors = ["{{author_name}}"]
 description = "{{description}}"
+rust-version = "1.94"
 license = "{{license}}"
 repository = "https://github.com/{{github_username}}/{{project-name}}"
 readme = "README.md"
@@ -53,3 +54,12 @@ criterion = "0.7"
 name = "lib"
 harness = false
 {% endif %}
+
+[profile.dev]
+opt-level = 1
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+strip = "symbols"
