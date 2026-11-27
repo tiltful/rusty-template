@@ -90,10 +90,10 @@ ignore = ["NOTICE"]
 init = ["scripts/init.rhai"]
 
 [conditional.'architecture == "minimal"']
-ignore = ["src/state.rs", "src/application.rs", "src/presentation.rs", "src/domain", "src/infrastructure"]
+ignore = ["src/state.rs", "src/app.rs", "src/presentation.rs", "src/domain", "src/infrastructure", "src/application"]
 
 [conditional.'architecture == "modular"']
-ignore = ["src/domain", "src/infrastructure"]
+ignore = ["src/domain", "src/infrastructure", "src/application"]
 
 [conditional.'architecture == "ddd"']
-ignore = ["src/application.rs", "src/presentation.rs"]
+ignore = ["src/app.rs"]
