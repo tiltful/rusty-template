@@ -32,8 +32,8 @@ axum = "0.8"
 tower-http = { version = "0.6", features = ["trace", "compression-gzip"] }
 {% endif %}
 {% if use_sqlx %}
-sqlx = { version = "0.9", default-features = false, features = ["runtime-tokio", "postgres", "macros", "chrono", "uuid", "migrate", "tls-rustls-ring-webpki"] }
-chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+sqlx = { version = "0.9", default-features = false, features = ["runtime-tokio", "postgres", "macros", "time", "uuid", "migrate", "tls-rustls-ring-webpki"] }
+time = { version = "0.3", features = ["serde"] }
 uuid = { version = "1", features = ["serde", "v7"] }
 {% endif %}
 {% if use_redis %}
