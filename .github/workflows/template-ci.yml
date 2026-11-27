@@ -75,6 +75,16 @@ jobs:
             use_redis: false
             use_reqwest: false
             use_config: false
+          - name: binary-config-only
+            crate_type: bin
+            license: MIT
+            use_tokio: false
+            use_tracing: false
+            use_axum: false
+            use_sqlx: false
+            use_redis: false
+            use_reqwest: false
+            use_config: true
           - name: binary-integrations
             crate_type: bin
             license: MIT
