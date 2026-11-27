@@ -21,7 +21,9 @@ Install the Git hooks:
 pre-commit install --hook-type pre-commit --hook-type commit-msg
 ```
 
-Run `cargo make quality` before opening a pull request. Run `cargo make ci` when all optional tooling is installed.\n\nThe template uses cargo-generate's init hook only; file selection and license output are handled declaratively by Liquid and conditional rules. Avoid post-generation file surgery unless a real generated-file requirement cannot be expressed declaratively.
+Run `cargo make quality` before opening a pull request. Run `cargo make ci` when all optional tooling is installed.
+
+The template uses cargo-generate's init hook only; file selection and license output are handled declaratively by Liquid and conditional rules. Avoid post-generation file surgery unless a real generated-file requirement cannot be expressed declaratively.
 The commit-message validator is covered by `python3 -m unittest discover -s tests -p 'test_*.py'`.
 
 ## Commit messages
