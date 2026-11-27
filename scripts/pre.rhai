@@ -3,8 +3,7 @@ let license = variable::get("license");
 let project_name = variable::get("project-name");
 let github_user = variable::get("github_username");
 
-// Template-only infrastructure must not leak into generated projects.
-file::delete("cargo-generate.toml");
+// cargo-generate.toml is excluded from output through the template ignore list.
 file::delete(".github/workflows/template-ci.yml");
 
 if crate_type == "bin" {
