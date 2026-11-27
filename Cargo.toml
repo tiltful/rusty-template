@@ -14,7 +14,7 @@ unsafe_code = "forbid"
 
 [dependencies]
 {% if crate_type == "bin" %}
-{% if use_tokio or use_axum or use_sqlx or use_redis or use_reqwest %}
+{% if use_tokio or use_axum or use_sqlx or use_redis or use_reqwest or use_config %}
 anyhow = "1"
 {% endif %}
 {% endif %}
