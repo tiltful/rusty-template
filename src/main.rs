@@ -117,12 +117,11 @@ fn main() {
     {% if use_tracing %}
     init_tracing();
     tracing::info!("Application started");
+    {% else %}
+    println!("Hello from {{project-name}}!");
     {% endif %}
     {% if use_config %}
     init_integrations().expect("failed to initialize configuration");
-    {% endif %}
-    {% if not use_tracing %}
-    println!("Hello from {{project-name}}!");
     {% endif %}
 }
 {% endif %}
