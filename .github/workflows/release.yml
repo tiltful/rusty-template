@@ -81,13 +81,23 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
       - uses: actions/download-artifact@v4
         with:
           pattern: release-*
           path: dist
           merge-multiple: true
+      - name: Install SBOM generator
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-cyclonedx
+      - name: Generate CycloneDX SBOM
+        run: |
+          cargo cyclonedx --format json --override-filename sbom
+          find . -maxdepth 1 -type f -name '*.json' -exec cp {} dist/ \\;
       - name: Generate checksums
-        run: cd dist && sha256sum ./*.tar.gz ./*.zip > SHA256SUMS
+        run: cd dist && sha256sum ./* > SHA256SUMS
       - uses: softprops/action-gh-release@v2
         with:
           files: dist/*
