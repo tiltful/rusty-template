@@ -40,6 +40,16 @@ jobs:
             use_redis: false
             use_reqwest: false
             use_config: false
+          - name: binary-axum-no-tracing
+            crate_type: bin
+            license: MIT
+            use_tokio: false
+            use_tracing: false
+            use_axum: true
+            use_sqlx: false
+            use_redis: false
+            use_reqwest: false
+            use_config: false
           - name: library
             crate_type: lib
             license: Apache-2.0
