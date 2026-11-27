@@ -41,8 +41,17 @@ def validate(message: str) -> tuple[bool, str]:
     # This also handles a footer immediately after the header (no body).
     footer_start = None
     for index in range(1, len(lines) - 1):
-        if not lines[index].strip() and FOOTER.fullmatch(lines[index + 1]):
-            footer_start = index + 1
+        if not lines[index].strip():
+            candidate = lines[index + 1]
+            if re.match(r"^(?:🚨 )?breaking[ -]change(?:: | #)", candidate, re.IGNORECASE):
+                if not (
+                    candidate.startswith("🚨 BREAKING CHANGE: ")
+                    or candidate.startswith("BREAKING-CHANGE: ")
+                    or candidate.startswith("BREAKING-CHANGE #")
+                ):
+                    return False, "breaking-change footer must use the exact uppercase token"
+            if FOOTER.fullmatch(candidate):
+                footer_start = index + 1
 
     if footer_start is not None:
         for index, line in enumerate(lines[footer_start:]):

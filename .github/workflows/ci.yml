@@ -148,11 +148,23 @@ jobs:
             test -f "$project/src/lib.rs"
             test ! -e "$project/src/main.rs"
             test ! -e "$project/Dockerfile"
+            ! grep -q '^\[tasks.run\]' "$project/Makefile.toml"
+            ! grep -q '^\[tasks.docker-build\]' "$project/Makefile.toml"
           else
             test -f "$project/src/main.rs"
             test ! -e "$project/src/lib.rs"
             test -f "$project/Dockerfile"
+            grep -q '^\[tasks.run\]' "$project/Makefile.toml"
+            grep -q '^\[tasks.docker-build\]' "$project/Makefile.toml"
           fi
+          python3 - <<'PY'
+          import pathlib
+          import tomllib
+          project = pathlib.Path("target/smoke-${{ matrix.name }}")
+          for name in ("Cargo.toml", "Makefile.toml", "cliff.toml", "release.toml", "deny.toml", ".committed.toml", "rust-toolchain.toml"):
+              with (project / name).open("rb") as file:
+                  tomllib.load(file)
+          PY
       - name: Format
         run: cargo fmt --manifest-path target/smoke-${{ matrix.name }}/Cargo.toml --all -- --check
       - name: Check

@@ -67,6 +67,10 @@ class CommitMessageTests(unittest.TestCase):
         message = "♻️ refactor(api): change token format\n\nbreaking-change: old tokens are rejected\n"
         self.assertNotEqual(validate(message).returncode, 0)
 
+    def test_accepts_uppercase_hyphenated_breaking_footer(self):
+        message = "♻️ refactor(api): change token format\n\nBREAKING-CHANGE: old tokens are rejected\n"
+        self.assertEqual(validate(message).returncode, 0)
+
 
 if __name__ == "__main__":
     unittest.main()
