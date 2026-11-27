@@ -111,7 +111,6 @@ jobs:
         run: |
           cat > "${{ runner.temp }}/template-values.txt" <<'EOF'
           [values]
-          [values]
           author_name="Tilt <git@tilt.ninja>"
           description="Generated template smoke test"
           github_username="tiltful"
@@ -201,6 +200,7 @@ jobs:
       - name: Generate security fixture
         run: |
           cat > "${{ runner.temp }}/security-values.txt" <<'EOF'
+          [values]
           author_name="Tilt <git@tilt.ninja>"
           description="Security validation fixture"
           github_username="tiltful"
