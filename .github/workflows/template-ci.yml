@@ -113,7 +113,7 @@ jobs:
           author_name="Tilt <git@tilt.ninja>"
           description="Generated template smoke test"
           github_username="tiltful"
-          license=${{ matrix.license }}
+          license="${{ matrix.license }}"
           copyright_holder="Tilt"
           copyright_year="2026"
           use_tokio=${{ matrix.use_tokio }}
