@@ -110,6 +110,7 @@ jobs:
       - name: Generate project
         run: |
           cat > "${{ runner.temp }}/template-values.txt" <<'EOF'
+          [values]
           author_name="Tilt <git@tilt.ninja>"
           description="Generated template smoke test"
           github_username="tiltful"
