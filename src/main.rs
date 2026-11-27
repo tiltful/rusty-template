@@ -5,7 +5,15 @@
 #![forbid(unsafe_code)]
 
 {% if use_tracing %}
-use tracing_subscriber::EnvFilter;
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
+
+fn init_tracing() {
+    tracing_subscriber::registry()
+        .with(EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info")))
+        .with(tracing_error::ErrorLayer::default())
+        .with(tracing_subscriber::fmt::layer().json())
+        .init();
+}
 {% endif %}
 {% if use_axum %}
 use axum::{routing::get, Router};
@@ -43,10 +51,7 @@ async fn shutdown_signal() {
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     {% if use_tracing %}
-    tracing_subscriber::fmt()
-        .with_env_filter(EnvFilter::from_default_env())
-        .json()
-        .init();
+    init_tracing();
     {% endif %}
 
     let app = Router::new()
@@ -71,10 +76,7 @@ async fn main() -> anyhow::Result<()> {
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     {% if use_tracing %}
-    tracing_subscriber::fmt()
-        .with_env_filter(EnvFilter::from_default_env())
-        .json()
-        .init();
+    init_tracing();
     tracing::info!("Application started");
     {% endif %}
     Ok(())
@@ -82,10 +84,7 @@ async fn main() -> anyhow::Result<()> {
 {% else %}
 fn main() {
     {% if use_tracing %}
-    tracing_subscriber::fmt()
-        .with_env_filter(EnvFilter::from_default_env())
-        .json()
-        .init();
+    init_tracing();
     tracing::info!("Application started");
     {% else %}
     println!("Hello from {{project-name}}!");
