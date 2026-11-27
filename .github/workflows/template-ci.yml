@@ -218,6 +218,10 @@ jobs:
           EOF
           cd "${{ runner.temp }}"
           cargo generate --path "$GITHUB_WORKSPACE" --name security-smoke --bin --vcs none --silent --template-values-file "${{ runner.temp }}/security-values.txt"
+      - name: Validate generated GitHub Actions workflows
+        run: |
+          go install github.com/rhysd/actionlint/cmd/actionlint@latest
+          "$HOME/go/bin/actionlint" "${{ runner.temp }}/security-smoke/.github/workflows/ci.yml" "${{ runner.temp }}/security-smoke/.github/workflows/release.yml"
       - name: Resolve dependencies
         working-directory: ${{ runner.temp }}/security-smoke
         run: cargo generate-lockfile
