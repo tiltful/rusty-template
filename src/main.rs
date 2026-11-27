@@ -52,42 +52,7 @@ fn load_settings() -> anyhow::Result<Settings> {
         .try_deserialize()?)
 }
 
-#[cfg(test)]
-mod settings_tests {
-    use super::Settings;
 
-    #[test]
-    fn missing_configuration_uses_default_port() -> Result<(), Box<dyn std::error::Error>> {
-        let settings = config::Config::builder()
-            .build()?
-            .try_deserialize::<Settings>()?;
-
-        assert_eq!(settings.port, 3000);
-        Ok(())
-    }
-
-    #[test]
-    fn configured_port_is_deserialized() -> Result<(), Box<dyn std::error::Error>> {
-        let settings = config::Config::builder()
-            .set_override("port", 8080)?
-            .build()?
-            .try_deserialize::<Settings>()?;
-
-        assert_eq!(settings.port, 8080);
-        Ok(())
-    }
-
-    #[test]
-    fn invalid_port_is_rejected() -> Result<(), Box<dyn std::error::Error>> {
-        let result = config::Config::builder()
-            .set_override("port", "70000")?
-            .build()?
-            .try_deserialize::<Settings>();
-
-        assert!(result.is_err());
-        Ok(())
-    }
-}
 {% endif %}
 {% if use_config or use_sqlx or use_redis or use_reqwest %}
 fn init_integrations() -> anyhow::Result<{% if use_config %}Settings{% else %}(){% endif %}> {
@@ -267,5 +232,44 @@ fn run_architecture() {
 fn run_architecture() {
     let state = state::AppState::default();
     println!("{}", presentation::greeting(&state));
+}
+{% endif %}
+
+{% if use_config %}
+#[cfg(test)]
+mod settings_tests {
+    use super::Settings;
+
+    #[test]
+    fn missing_configuration_uses_default_port() -> Result<(), Box<dyn std::error::Error>> {
+        let settings = config::Config::builder()
+            .build()?
+            .try_deserialize::<Settings>()?;
+
+        assert_eq!(settings.port, 3000);
+        Ok(())
+    }
+
+    #[test]
+    fn configured_port_is_deserialized() -> Result<(), Box<dyn std::error::Error>> {
+        let settings = config::Config::builder()
+            .set_override("port", 8080)?
+            .build()?
+            .try_deserialize::<Settings>()?;
+
+        assert_eq!(settings.port, 8080);
+        Ok(())
+    }
+
+    #[test]
+    fn invalid_port_is_rejected() -> Result<(), Box<dyn std::error::Error>> {
+        let result = config::Config::builder()
+            .set_override("port", "70000")?
+            .build()?
+            .try_deserialize::<Settings>();
+
+        assert!(result.is_err());
+        Ok(())
+    }
 }
 {% endif %}

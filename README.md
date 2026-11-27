@@ -35,7 +35,7 @@ These profiles use the standard library only. Axum can be enabled independently;
 
 ## Configuration
 
-When `config + dotenvy` is selected, the application loads optional `config.toml`, then `.env`, then process environment variables. Later sources take precedence, so environment variables override file values. The HTTP port is exposed as `APP_PORT` (default `3000`); the generated `.env.example` also includes `PORT` for projects that do not enable the config integration. The port is deserialized as `u16`, so malformed and out-of-range values fail at startup rather than being silently accepted. Copy `.env.example` to `.env` for local development. Do not commit real secrets.
+When `config + dotenvy` is selected, the application loads optional `config.toml`, then `.env`, then process environment variables. Later sources take precedence, so environment variables override file values. The HTTP port is exposed as `APP_PORT` (default `3000`); the generated `.env.example` also includes `PORT` for projects that do not enable the config integration. The port is deserialized as `u16`, so malformed and out-of-range values fail at startup rather than being silently accepted. Copy `.env.example` to `.env` for local development. The Docker image includes the generated `config.toml` when this integration is selected; provide secrets through runtime environment variables, never by committing them.
 
 Example `config.toml`:
 

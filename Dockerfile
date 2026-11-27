@@ -32,6 +32,9 @@ FROM scratch AS runtime
 ARG APP_NAME
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 WORKDIR /app
+{% if use_config %}
+COPY --from=builder /app/config.toml /app/config.toml
+{% endif %}
 ENV PORT=3000
 ENV RUST_LOG=info
 COPY --from=builder --chown=10001:10001 /tmp /tmp

@@ -219,6 +219,12 @@ jobs:
             grep -q '^\[tasks.run\]' "$project/Makefile.toml"
             grep -q '^\[tasks.docker-build\]' "$project/Makefile.toml"
           fi
+          if [ "${{ matrix.use_config }}" = "true" ]; then
+            test -f "$project/config.toml"
+            grep -q 'COPY --from=builder /app/config.toml /app/config.toml' "$project/Dockerfile"
+          else
+            test ! -e "$project/config.toml"
+          fi
           if [ "${{ matrix.architecture }}" = "modular" ]; then
             test -f "$project/src/app.rs"
             test -f "$project/src/state.rs"
