@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: template-ci-${{ github.ref }}
+  group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -17,216 +17,42 @@ env:
   RUSTDOCFLAGS: -D warnings
 
 jobs:
-  template-validation:
-    name: ${{ matrix.name }}
+  quality:
+    if: github.repository != 'tiltful/rusty-template'
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: binary-default
-            crate_type: bin
-            license: MIT
-            use_tokio: true
-            use_tracing: true
-            use_axum: false
-            use_sqlx: false
-            use_redis: false
-            use_reqwest: false
-            use_config: false
-          - name: binary-axum
-            crate_type: bin
-            license: MIT
-            use_tokio: true
-            use_tracing: true
-            use_axum: true
-            use_sqlx: false
-            use_redis: false
-            use_reqwest: false
-            use_config: false
-          - name: binary-axum-no-tracing
-            crate_type: bin
-            license: MIT
-            use_tokio: false
-            use_tracing: false
-            use_axum: true
-            use_sqlx: false
-            use_redis: false
-            use_reqwest: false
-            use_config: false
-          - name: library
-            crate_type: lib
-            license: Apache-2.0
-            use_tokio: false
-            use_tracing: false
-            use_axum: false
-            use_sqlx: false
-            use_redis: false
-            use_reqwest: false
-            use_config: false
-          - name: binary-minimal
-            crate_type: bin
-            license: MIT
-            use_tokio: false
-            use_tracing: false
-            use_axum: false
-            use_sqlx: false
-            use_redis: false
-            use_reqwest: false
-            use_config: false
-          - name: binary-integrations
-            crate_type: bin
-            license: MIT
-            use_tokio: false
-            use_tracing: true
-            use_axum: false
-            use_sqlx: true
-            use_redis: true
-            use_reqwest: true
-            use_config: true
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy, rustfmt
       - uses: Swatinem/rust-cache@v2
-      - name: Validate commit message format
-        run: |
-          python3 -m py_compile .commit-message.py
-          python3 -m unittest discover -s tests -p 'test_*.py'
-          printf '%s\n\n%s\n\n%s\n' '♻️ refactor(parser): simplify token handling' 'Explain why the parser change is needed.' 'Refs: #123' > /tmp/commit-message
-          python3 .commit-message.py /tmp/commit-message
-          printf '%s\n' ':recycle: refactor(parser): simplify token handling' > /tmp/shortcode-message
-          python3 .commit-message.py /tmp/shortcode-message
-          printf '%s\n' 'refactor(parser): missing emoji' > /tmp/invalid-commit-message
-          if python3 .commit-message.py /tmp/invalid-commit-message; then
-            echo "Invalid commit header unexpectedly passed"
-            exit 1
-          fi
-      - name: Install cargo-generate
-        run: cargo install cargo-generate --locked
-      - name: Generate project
-        run: >-
-          cargo generate --path . --name smoke-${{ matrix.name }}
-          --define author_name="Tilt <git@tilt.ninja>"
-          --define description="Generated template smoke test"
-          --define github_username=tiltful
-          --define license=${{ matrix.license }}
-          --define copyright_holder=Tilt
-          --define copyright_year=2026
-          --define use_tokio=${{ matrix.use_tokio }}
-          --define use_tracing=${{ matrix.use_tracing }}
-          --define use_axum=${{ matrix.use_axum }}
-          --define use_sqlx=${{ matrix.use_sqlx }}
-          --define use_redis=${{ matrix.use_redis }}
-          --define use_reqwest=${{ matrix.use_reqwest }}
-          --define use_config=${{ matrix.use_config }}
-          --${{ matrix.crate_type }}
-          --silent --destination target/smoke-${{ matrix.name }} --vcs none
-      - name: Verify generated layout
-        run: |
-          project="target/smoke-${{ matrix.name }}"
-          test -f "$project/Cargo.toml"
-          test -f "$project/LICENSE"
-          test -f "$project/.env.example"
-          test -f "$project/cliff.toml"
-          test ! -e "$project/LICENSE-MIT"
-          test ! -e "$project/LICENSE-APACHE"
-          test ! -e "$project/cargo-generate.toml"
-          test ! -e "$project/.github/workflows/ci.yml"
-          test ! -e "$project/tests/test_commit_message.py"
-          test ! -d "$project/scripts"
-          test -f "$project/.commit-message.py"
-          ! grep -Eq '<GITHUB_USER>|<PROJECT_NAME>' "$project/cliff.toml"
-          if [ "${{ matrix.license }}" = "Apache-2.0" ]; then
-            test -f "$project/NOTICE"
-          else
-            test ! -e "$project/NOTICE"
-          fi
-          if [ "${{ matrix.crate_type }}" = "lib" ]; then
-            test ! -e "$project/.github/workflows/release.yml"
-            test -f "$project/src/lib.rs"
-            test ! -e "$project/src/main.rs"
-            test ! -e "$project/Dockerfile"
-            ! grep -q '^\[tasks.run\]' "$project/Makefile.toml"
-            ! grep -q '^\[tasks.docker-build\]' "$project/Makefile.toml"
-          else
-            test -f "$project/.github/workflows/release.yml"
-            ! grep -q '__PROJECT_NAME__' "$project/.github/workflows/release.yml"
-            grep -q 'smoke-${{ matrix.name }}' "$project/Cargo.toml"
-            test -f "$project/src/main.rs"
-            test ! -e "$project/src/lib.rs"
-            test -f "$project/Dockerfile"
-            grep -q '^\[tasks.run\]' "$project/Makefile.toml"
-            grep -q '^\[tasks.docker-build\]' "$project/Makefile.toml"
-          fi
-          python3 - <<'PY'
-          import pathlib
-          import tomllib
-          project = pathlib.Path("target/smoke-${{ matrix.name }}")
-          for name in ("Cargo.toml", "Makefile.toml", "cliff.toml", "release.toml", "deny.toml", ".committed.toml", "rust-toolchain.toml"):
-              with (project / name).open("rb") as file:
-                  tomllib.load(file)
-          PY
       - name: Format
-        run: cargo fmt --manifest-path target/smoke-${{ matrix.name }}/Cargo.toml --all -- --check
+        run: cargo fmt --all -- --check
       - name: Check
-        run: cargo check --manifest-path target/smoke-${{ matrix.name }}/Cargo.toml --all-targets
+        run: cargo check --all-targets
       - name: Clippy
-        run: cargo clippy --manifest-path target/smoke-${{ matrix.name }}/Cargo.toml --all-targets -- --deny warnings
+        run: cargo clippy --all-targets -- --deny warnings
       - name: Test
-        run: cargo test --manifest-path target/smoke-${{ matrix.name }}/Cargo.toml
+        run: cargo test
       - name: Rustdoc
-        run: cargo doc --manifest-path target/smoke-${{ matrix.name }}/Cargo.toml --no-deps
-      - name: Build binary Docker image
-        if: matrix.crate_type == 'bin'
-        run: docker build -t smoke-template:ci target/smoke-${{ matrix.name }}
-
-  dependency-security:
-    name: Dependency security and SBOM
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
-      - name: Install cargo-generate
-        run: cargo install cargo-generate --locked
-      - name: Generate security fixture
-        run: >-
-          cargo generate --path . --name security-smoke
-          --define author_name="Tilt <git@tilt.ninja>"
-          --define description="Security validation fixture"
-          --define github_username=tiltful
-          --define license=MIT
-          --define copyright_holder=Tilt
-          --define copyright_year=2026
-          --define use_tokio=true
-          --define use_tracing=true
-          --define use_axum=false
-          --define use_sqlx=false
-          --define use_redis=false
-          --define use_reqwest=false
-          --define use_config=false
-          --bin --silent --destination target/security-smoke --vcs none
-      - name: Resolve dependencies
-        working-directory: target/security-smoke
+        run: cargo doc --no-deps
+      - name: Build container
+        if: hashFiles('Dockerfile') != ''
+        run: docker build -t ${{ github.event.repository.name }}:ci .
+      - name: Install dependency tools
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-audit,cargo-deny,cargo-cyclonedx
+      - name: Generate lockfile
         run: cargo generate-lockfile
-      - name: Install security tools
-        run: |
-          cargo install --locked cargo-audit
-          cargo install --locked cargo-deny
-          cargo install cargo-cyclonedx
-      - name: Audit advisories
-        working-directory: target/security-smoke
+      - name: Audit dependencies
         run: cargo audit
-      - name: Check licenses, bans and sources
-        working-directory: target/security-smoke
+      - name: Check dependency policy
         run: cargo deny check
       - name: Generate CycloneDX SBOM
-        working-directory: target/security-smoke
         run: cargo cyclonedx --format json --override-filename sbom.json
       - uses: actions/upload-artifact@v4
         with:
           name: cyclonedx-sbom
-          path: target/security-smoke/sbom.json
+          path: sbom.json
           if-no-files-found: error

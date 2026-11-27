@@ -5,7 +5,7 @@ let github_user = variable::get("github_username");
 
 // Template-only infrastructure must not leak into generated projects.
 file::delete("cargo-generate.toml");
-file::delete(".github/workflows/ci.yml");
+file::delete(".github/workflows/template-ci.yml");
 
 if crate_type == "bin" {
     file::delete("src/lib.rs");
