@@ -11,18 +11,16 @@ import unicodedata
 
 TYPES = ("feat", "fix", "docs", "style", "refactor", "perf", "test", "build", "ci", "chore", "revert")
 HEADER = re.compile(
-    r"^(?P<gitmoji>\S+) (?P<type>" + "|".join(TYPES) +
-    r")(?:\((?P<scope>[^()\r\n]+)\))?(?P<breaking>❗)?: (?P<description>\S.*)$",
-    re.IGNORECASE,
+    r"^(?P<gitmoji>\\S+) (?P<type>" + "|".join(TYPES) +
+    r")(?:\\((?P<scope>[^()\\r\\n]+)\\))?(?P<breaking>❗)?: (?P<description>\\S.*)$"
 )
 FOOTER = re.compile(
-    r"^(?P<token>🚨 BREAKING CHANGE|BREAKING-CHANGE|[A-Za-z0-9][A-Za-z0-9-]*)(?:: | #)(?P<value>\S.*)$"
+    r"^(?P<token>🚨 BREAKING CHANGE|BREAKING CHANGE|BREAKING-CHANGE|[A-Za-z0-9][A-Za-z0-9-]*)(?:: | #)(?P<value>\\S.*)$"
 )
 SHORTCODE = re.compile(r"^:[a-z0-9_+-]+:$", re.IGNORECASE)
 
 
 def is_gitmoji(token: str) -> bool:
-    # Accept Unicode Gitmoji and their canonical :shortcode: representation.
     if SHORTCODE.fullmatch(token):
         return True
     categories = [unicodedata.category(char) for char in token]
@@ -32,7 +30,7 @@ def is_gitmoji(token: str) -> bool:
 
 
 def validate(message: str) -> tuple[bool, str]:
-    lines = message.rstrip("\n").splitlines()
+    lines = message.rstrip("\\n").splitlines()
     if not lines or not lines[0].strip():
         return False, "commit message is empty"
 
@@ -40,20 +38,18 @@ def validate(message: str) -> tuple[bool, str]:
     if not match or not is_gitmoji(match.group("gitmoji")):
         return False, "expected: <gitmoji> <type>(<scope>)❗: <description>"
 
-    # A footer block starts after a blank line and begins with a valid trailer.
-    # This also handles a footer immediately after the header (no body).
     footer_start = None
     for index in range(1, len(lines) - 1):
         if not lines[index].strip():
             candidate = lines[index + 1]
             if re.match(r"^(?:🚨 )?breaking[ -]change(?:: | #)", candidate, re.IGNORECASE):
-                if not (
-                    candidate.startswith("🚨 BREAKING CHANGE: ")
-                    or candidate.startswith("BREAKING CHANGE: ")
-                    or candidate.startswith("BREAKING-CHANGE: ")
-                    or candidate.startswith("BREAKING-CHANGE #")
-                ):
-                    return False, "breaking-change footer must use the exact uppercase token"
+                if not any(candidate.startswith(prefix) for prefix in (
+                    "🚨 BREAKING CHANGE: ",
+                    "BREAKING CHANGE: ",
+                    "BREAKING-CHANGE: ",
+                    "BREAKING-CHANGE #",
+                )):
+                    return False, "BREAKING CHANGE footer token must be uppercase"
             if FOOTER.fullmatch(candidate):
                 footer_start = index + 1
 
@@ -72,7 +68,6 @@ def validate(message: str) -> tuple[bool, str]:
                     return False, "BREAKING CHANGE footer requires a description"
             elif index == 0:
                 return False, "invalid footer"
-            # Non-token lines after the first trailer are wrapped footer values.
     return True, ""
 
 
