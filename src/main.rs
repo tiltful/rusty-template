@@ -14,6 +14,32 @@ use tower_http::compression::CompressionLayer;
 use tower_http::trace::TraceLayer;
 {% endif %}
 
+async fn shutdown_signal() {
+    #[cfg(unix)]
+    {
+        let mut terminate = tokio::signal::unix::signal(
+            tokio::signal::unix::SignalKind::terminate(),
+        )
+        .expect("failed to install SIGTERM handler");
+
+        tokio::select! {
+            result = tokio::signal::ctrl_c() => {
+                if let Err(error) = result {
+                    eprintln!("failed to listen for Ctrl+C: {error}");
+                }
+            }
+            _ = terminate.recv() => {}
+        }
+    }
+
+    #[cfg(not(unix))]
+    {
+        if let Err(error) = tokio::signal::ctrl_c().await {
+            eprintln!("failed to listen for Ctrl+C: {error}");
+        }
+    }
+}
+
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     {% if use_tracing %}
@@ -37,9 +63,7 @@ async fn main() -> anyhow::Result<()> {
     tracing::info!("HTTP server listening on {}", listener.local_addr()?);
     {% endif %}
     axum::serve(listener, app)
-        .with_graceful_shutdown(async {
-            let _ = tokio::signal::ctrl_c().await;
-        })
+        .with_graceful_shutdown(shutdown_signal())
         .await?;
     Ok(())
 }

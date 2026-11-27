@@ -14,7 +14,7 @@ FROM chef AS builder
 COPY rust-toolchain.toml rust-toolchain.toml
 RUN rustup target add x86_64-unknown-linux-musl \
     && apt-get update \
-    && apt-get install --no-install-recommends -y musl-tools musl-dev gcc ca-certificates \
+    && apt-get install --no-install-recommends -y musl-tools musl-dev gcc g++ make cmake perl pkg-config ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 ENV CC_x86_64_unknown_linux_musl=musl-gcc
 ENV CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER=musl-gcc
