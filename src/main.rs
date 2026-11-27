@@ -16,7 +16,7 @@ fn init_tracing() {
 }
 {% endif %}
 {% if use_config or use_sqlx or use_redis or use_reqwest %}
-fn init_integrations() -> Result<(), Box<dyn std::error::Error>> {
+fn init_integrations() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     {% if use_config %}
     dotenvy::dotenv().ok();
     let _settings = config::Config::builder()
