@@ -109,24 +109,23 @@ jobs:
           tool: cargo-generate
       - name: Generate project
         run: |
-          mkdir -p "${{ runner.temp }}/smoke-${{ matrix.name }}"
-          cd "${{ runner.temp }}/smoke-${{ matrix.name }}"
-          cargo generate --path "$GITHUB_WORKSPACE" --name smoke-${{ matrix.name }}
-          --define author_name="Tilt <git@tilt.ninja>"
-          --define description="Generated template smoke test"
-          --define github_username=tiltful
-          --define license=${{ matrix.license }}
-          --define copyright_holder=Tilt
-          --define copyright_year=2026
-          --define use_tokio=${{ matrix.use_tokio }}
-          --define use_tracing=${{ matrix.use_tracing }}
-          --define use_axum=${{ matrix.use_axum }}
-          --define use_sqlx=${{ matrix.use_sqlx }}
-          --define use_redis=${{ matrix.use_redis }}
-          --define use_reqwest=${{ matrix.use_reqwest }}
-          --define use_config=${{ matrix.use_config }}
-          --${{ matrix.crate_type }}
-          --init --vcs none
+          cat > "${{ runner.temp }}/template-values.txt" <<'EOF'
+          author_name=Tilt <git@tilt.ninja>
+          description=Generated template smoke test
+          github_username=tiltful
+          license=${{ matrix.license }}
+          copyright_holder=Tilt
+          copyright_year=2026
+          use_tokio=${{ matrix.use_tokio }}
+          use_tracing=${{ matrix.use_tracing }}
+          use_axum=${{ matrix.use_axum }}
+          use_sqlx=${{ matrix.use_sqlx }}
+          use_redis=${{ matrix.use_redis }}
+          use_reqwest=${{ matrix.use_reqwest }}
+          use_config=${{ matrix.use_config }}
+          EOF
+          cd "${{ runner.temp }}"
+          cargo generate --path "$GITHUB_WORKSPACE" --name smoke-${{ matrix.name }} --${{ matrix.crate_type }} --vcs none --silent --template-values-file "${{ runner.temp }}/template-values.txt"
       - name: Verify generated layout
         run: |
           project="${{ runner.temp }}/smoke-${{ matrix.name }}"
@@ -199,23 +198,23 @@ jobs:
           tool: cargo-generate
       - name: Generate security fixture
         run: |
-          mkdir -p "${{ runner.temp }}/security-smoke"
-          cd "${{ runner.temp }}/security-smoke"
-          cargo generate --path "$GITHUB_WORKSPACE" --name security-smoke
-          --define author_name="Tilt <git@tilt.ninja>"
-          --define description="Security validation fixture"
-          --define github_username=tiltful
-          --define license=MIT
-          --define copyright_holder=Tilt
-          --define copyright_year=2026
-          --define use_tokio=true
-          --define use_tracing=true
-          --define use_axum=false
-          --define use_sqlx=false
-          --define use_redis=false
-          --define use_reqwest=false
-          --define use_config=false
-          --bin --init --vcs none
+          cat > "${{ runner.temp }}/security-values.txt" <<'EOF'
+          author_name=Tilt <git@tilt.ninja>
+          description=Security validation fixture
+          github_username=tiltful
+          license=MIT
+          copyright_holder=Tilt
+          copyright_year=2026
+          use_tokio=true
+          use_tracing=true
+          use_axum=false
+          use_sqlx=false
+          use_redis=false
+          use_reqwest=false
+          use_config=false
+          EOF
+          cd "${{ runner.temp }}"
+          cargo generate --path "$GITHUB_WORKSPACE" --name security-smoke --bin --vcs none --silent --template-values-file "${{ runner.temp }}/security-values.txt"
       - name: Resolve dependencies
         working-directory: ${{ runner.temp }}/security-smoke
         run: cargo generate-lockfile
