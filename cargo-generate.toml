@@ -97,3 +97,6 @@ ignore = ["src/domain", "src/infrastructure", "src/application"]
 
 [conditional.'architecture == "ddd"']
 ignore = ["src/app.rs"]
+
+[conditional.'use_config == false']
+ignore = ["config.toml"]

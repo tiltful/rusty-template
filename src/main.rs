@@ -27,13 +27,37 @@ fn init_tracing() {
         .init();
 }
 {% endif %}
+{% if use_config %}
+#[derive(Debug, serde::Deserialize)]
+#[serde(default)]
+struct Settings {
+    port: u16,
+}
+
+{% if use_config %}
+impl Default for Settings {
+    fn default() -> Self {
+        Self { port: 3000 }
+    }
+}
+{% endif %}
+
+fn load_settings() -> anyhow::Result<Settings> {
+    if std::path::Path::new(".env").is_file() {
+        dotenvy::dotenv()?;
+    }
+
+    Ok(config::Config::builder()
+        .add_source(config::File::with_name("config").required(false))
+        .add_source(config::Environment::with_prefix("APP").separator("__"))
+        .build()?
+        .try_deserialize()?)
+}
+{% endif %}
 {% if use_config or use_sqlx or use_redis or use_reqwest %}
-fn init_integrations() -> anyhow::Result<()> {
+fn init_integrations() -> anyhow::Result<{% if use_config %}Settings{% else %}(){% endif %}> {
     {% if use_config %}
-    dotenvy::dotenv().ok();
-    let _settings = config::Config::builder()
-        .add_source(config::Environment::default())
-        .build()?;
+    let settings = load_settings()?;
     {% endif %}
     {% if use_sqlx %}
     // Configure the pool here and connect once DATABASE_URL is available.
@@ -49,7 +73,11 @@ fn init_integrations() -> anyhow::Result<()> {
     {% if use_reqwest %}
     let _http_client = reqwest::Client::builder().build()?;
     {% endif %}
+    {% if use_config %}
+    Ok(settings)
+    {% else %}
     Ok(())
+    {% endif %}
 }
 {% endif %}
 {% if use_axum %}
@@ -99,7 +127,13 @@ async fn main() -> anyhow::Result<()> {
     {% if use_tracing %}
     init_tracing();
     {% endif %}
-    {% if use_config or use_sqlx or use_redis or use_reqwest %}
+    {% if use_config %}
+    {% if use_axum %}
+    let settings = init_integrations()?;
+    {% else %}
+    let _settings = init_integrations()?;
+    {% endif %}
+    {% elsif use_sqlx or use_redis or use_reqwest %}
     init_integrations()?;
     {% endif %}
 
@@ -122,9 +156,13 @@ async fn main() -> anyhow::Result<()> {
     {% if use_tracing %}
     let app = app.layer(TraceLayer::new_for_http());
     {% endif %}
+    {% if use_config %}
+    let port = settings.port;
+    {% else %}
     let port = std::env::var("PORT")
         .unwrap_or_else(|_| "3000".to_owned())
         .parse::<u16>()?;
+    {% endif %}
     let listener = tokio::net::TcpListener::bind(("0.0.0.0", port)).await?;
     {% if use_tracing %}
     tracing::info!("HTTP server listening on {}", listener.local_addr()?);
@@ -141,7 +179,9 @@ async fn main() -> anyhow::Result<()> {
     init_tracing();
     tracing::info!("Application started");
     {% endif %}
-    {% if use_config or use_sqlx or use_redis or use_reqwest %}
+    {% if use_config %}
+    let _settings = init_integrations()?;
+    {% elsif use_sqlx or use_redis or use_reqwest %}
     init_integrations()?;
     {% endif %}
     {% if architecture != "minimal" %}

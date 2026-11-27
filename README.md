@@ -17,7 +17,8 @@
 - Selectable Tokio, tracing, Axum, SQLx, Redis, reqwest and config dependencies
 - Structured JSON logs with environment filtering and tracing-error context
 - Axum starter with gzip compression, HTTP request tracing and graceful shutdown
-- Optional integration bootstrap examples for environment config, SQLx/PostgreSQL types, Redis clients and rustls-based reqwest
+- Typed configuration with optional `config.toml`, `.env` loading, `APP_PORT` environment overrides and validated `u16` port values
+- Optional SQLx/PostgreSQL, Redis and rustls-based reqwest client setup
 - Binary and library projects receive only relevant tasks and assets
 - cargo-chef multi-stage Docker build with minimal scratch runtime
 - Formatting, Clippy, tests, security auditing, CycloneDX SBOM, changelog and cross-platform GitHub Releases
@@ -31,6 +32,16 @@ Choose an architecture profile during generation:
 - `ddd` demonstrates a small domain model with validated value objects, a repository port, an application use case, an infrastructure adapter and shared application state.
 
 These profiles use the standard library only. Axum can be enabled independently; when selected with `modular` or `ddd`, the generated route receives the typed `AppState` through Axum's `State` extractor. Treat the examples as a starting boundary, not a mandate to create a layer for every function.
+
+## Configuration
+
+When `config + dotenvy` is selected, the application loads optional `config.toml`, then `.env`, then process environment variables. Later sources take precedence, so environment variables override file values. The HTTP port is exposed as `APP_PORT` (default `3000`); the generated `.env.example` also includes `PORT` for projects that do not enable the config integration. Copy `.env.example` to `.env` for local development. Do not commit real secrets.
+
+Example `config.toml`:
+
+```toml
+port = 3000
+```
 
 ## Getting started
 
