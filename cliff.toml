@@ -1,7 +1,7 @@
 # Conventional Emoji Commits: <gitmoji> <type>(<scope>): <description>
 [changelog]
 header = "# Changelog\n\nAll notable changes to this project will be documented here.\n"
-body = """
+body = """{% raw %}
 {% if version %}\
     {% if previous.version %}\
         ## [{{ version | trim_start_matches(pat="v") }}](<REPO>/compare/{{ previous.version }}..{{ version }}) - {{ timestamp | date(format="%Y-%m-%d") }}
@@ -18,10 +18,10 @@ body = """
         - {{ commit.message | upper_first }} ([{{ commit.id | truncate(length=7, end="") }}](<REPO>/commit/{{ commit.id }}))
     {% endfor %}
 {% endfor %}
-"""
+{% endraw %}"""
 trim = true
 postprocessors = [
-  { pattern = '<REPO>', replace = 'https://github.com/<GITHUB_USER>/<PROJECT_NAME>' },
+  { pattern = '<REPO>', replace = 'https://github.com/{{github_username}}/{{project-name}}' },
 ]
 
 [git]
