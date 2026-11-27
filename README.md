@@ -102,7 +102,7 @@ Or generate from a local checkout while developing the template:
 cargo generate --path .
 ```
 
-The prompts let you choose the package type, architecture profile, license and optional integrations. Review the generated files and initialize your own Git repository before pushing.
+Choose the package type with `--bin` (the default) or `--lib`. The interactive prompts then let you select the architecture profile, license and optional integrations. For example, append `--lib` to generate a library. Review the generated files and initialize your own Git repository before pushing.
 
 ### Build and test
 
