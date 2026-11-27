@@ -16,7 +16,7 @@ fn init_tracing() {
 }
 {% endif %}
 {% if use_config or use_sqlx or use_redis or use_reqwest %}
-fn init_integrations() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+fn init_integrations() -> anyhow::Result<()> {
     {% if use_config %}
     dotenvy::dotenv().ok();
     let _settings = config::Config::builder()
@@ -113,18 +113,28 @@ async fn main() -> anyhow::Result<()> {
     Ok(())
 }
 {% else %}
-fn main() {
+{% if use_config %}
+fn main() -> anyhow::Result<()> {
     {% if use_tracing %}
     init_tracing();
     {% endif %}
-    {% if use_config %}
-    init_integrations().expect("failed to initialize configuration");
-    {% endif %}
+    init_integrations()?;
     {% if use_tracing %}
     tracing::info!("Application started");
     {% else %}
     println!("Hello from {{project-name}}!");
     {% endif %}
+    Ok(())
 }
+{% else %}
+fn main() {
+    {% if use_tracing %}
+    init_tracing();
+    tracing::info!("Application started");
+    {% else %}
+    println!("Hello from {{project-name}}!");
+    {% endif %}
+}
+{% endif %}
 {% endif %}
 {% endif %}
