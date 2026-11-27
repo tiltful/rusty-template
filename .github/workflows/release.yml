@@ -106,9 +106,11 @@ jobs:
       - name: Generate CycloneDX SBOM
         run: |
           cargo cyclonedx --format json --override-filename sbom
-          test -s sbom.json
+          sbom_file="$(find . -maxdepth 1 -type f -name 'sbom*.json' -print -quit)"
+          test -n "$sbom_file"
+          test -s "$sbom_file"
           mkdir -p dist
-          cp sbom.json dist/
+          cp "$sbom_file" dist/
       - name: Generate checksums
         run: cd dist && sha256sum ./* > SHA256SUMS
       - uses: softprops/action-gh-release@v2
