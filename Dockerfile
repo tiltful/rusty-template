@@ -3,7 +3,7 @@
 ARG APP_NAME={{project-name}}
 
 FROM rust:slim-trixie AS chef
-RUN cargo install --locked cargo-chef
+RUN cargo install --locked cargo-chef --version 0.1.78
 WORKDIR /app
 
 FROM chef AS planner

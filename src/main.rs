@@ -262,6 +262,27 @@ mod settings_tests {
     }
 
     #[test]
+    fn config_file_is_loaded() -> Result<(), Box<dyn std::error::Error>> {
+        let settings = config::Config::builder()
+            .add_source(config::File::with_name("config"))
+            .build()?
+            .try_deserialize::<Settings>()?;
+
+        assert_eq!(settings.port, 3000);
+        Ok(())
+    }
+
+    #[test]
+    fn process_environment_overrides_file_configuration() -> Result<(), Box<dyn std::error::Error>> {
+        let Ok(expected_port) = std::env::var("APP_PORT") else {
+            return Ok(());
+        };
+        let settings = load_settings()?;
+
+        assert_eq!(settings.port, expected_port.parse::<u16>()?);
+        Ok(())
+    }
+
     fn invalid_port_is_rejected() -> Result<(), Box<dyn std::error::Error>> {
         let result = config::Config::builder()
             .set_override("port", "70000")?

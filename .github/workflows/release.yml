@@ -31,7 +31,7 @@ jobs:
             target: x86_64-apple-darwin
             musl: false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
       - uses: dtolnay/rust-toolchain@stable
@@ -75,7 +75,7 @@ jobs:
         run: |
           mkdir -p dist
           tar -czf "dist/${{ steps.app-name-unix.outputs.name }}-${{ matrix.target }}.tar.gz" -C "target/${{ matrix.target }}/release" "${{ steps.app-name-unix.outputs.name }}"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: release-${{ matrix.target }}
           path: dist/*
@@ -88,11 +88,11 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
       - uses: dtolnay/rust-toolchain@stable
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: release-*
           path: dist
@@ -113,7 +113,7 @@ jobs:
           cp "$sbom_file" dist/
       - name: Generate checksums
         run: cd dist && sha256sum ./* > SHA256SUMS
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           files: dist/*
           generate_release_notes: true

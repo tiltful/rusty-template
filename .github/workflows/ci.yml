@@ -21,7 +21,7 @@ jobs:
     if: github.repository != 'tiltful/rusty-template'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy, rustfmt
@@ -51,7 +51,7 @@ jobs:
         run: cargo deny check
       - name: Generate CycloneDX SBOM
         run: cargo cyclonedx --format json --override-filename sbom
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: cyclonedx-sbom
           path: '*.json'

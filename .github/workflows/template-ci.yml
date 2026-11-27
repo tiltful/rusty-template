@@ -136,7 +136,7 @@ jobs:
             use_reqwest: true
             use_config: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy, rustfmt
@@ -258,6 +258,8 @@ jobs:
       - name: Clippy
         run: cargo clippy --manifest-path ${{ runner.temp }}/smoke-${{ matrix.name }}/Cargo.toml --all-targets -- --deny warnings
       - name: Test
+        env:
+          APP_PORT: "8080"
         run: cargo test --manifest-path ${{ runner.temp }}/smoke-${{ matrix.name }}/Cargo.toml
       - name: Rustdoc
         run: cargo doc --manifest-path ${{ runner.temp }}/smoke-${{ matrix.name }}/Cargo.toml --no-deps
@@ -272,7 +274,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
       - name: Install cargo-generate
         uses: taiki-e/install-action@v2
@@ -322,7 +324,7 @@ jobs:
           cargo cyclonedx --format json --override-filename sbom
           find . -maxdepth 1 -type f -name '*.json' -print
           test -n "$(find . -maxdepth 1 -type f -name '*.json' -print -quit)"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: cyclonedx-sbom
           path: ${{ runner.temp }}/security-smoke/*.json
