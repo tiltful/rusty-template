@@ -15,7 +15,7 @@
 - Selectable Tokio, tracing, Axum, SQLx, Redis, reqwest and config dependencies
 - Structured JSON logs with environment filtering and tracing-error context
 - Axum starter with gzip compression, HTTP request tracing and graceful shutdown
-- SQLx PostgreSQL with migrations, UUID and Chrono support; async Redis and rustls-based reqwest
+- SQLx PostgreSQL with migrations, UUID and `time` support; async Redis and rustls-based reqwest
 - Binary and library projects receive only relevant tasks and assets
 - cargo-chef multi-stage Docker build with minimal scratch runtime
 - Formatting, Clippy, tests, security auditing, CycloneDX SBOM, changelog and cross-platform GitHub Releases
