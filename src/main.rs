@@ -66,10 +66,15 @@ use tower_http::trace::TraceLayer;
 async fn shutdown_signal() {
     #[cfg(unix)]
     {
-        let mut terminate = tokio::signal::unix::signal(
+        let mut terminate = match tokio::signal::unix::signal(
             tokio::signal::unix::SignalKind::terminate(),
-        )
-        .expect("failed to install SIGTERM handler");
+        ) {
+            Ok(signal) => signal,
+            Err(error) => {
+                eprintln!("failed to install SIGTERM handler: {error}");
+                return;
+            }
+        };
 
         tokio::select! {
             result = tokio::signal::ctrl_c() => {
