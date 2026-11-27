@@ -1,6 +1,6 @@
 [template]
 cargo_generate_version = ">=0.24.0"
-ignore = ["Cargo.lock", "target", "__pycache__", ".venv", "cargo-generate.toml"]
+ignore = ["Cargo.lock", "target", "__pycache__", ".venv"]
 exclude = ["cliff.toml", "release.toml", ".github/workflows/ci.yml", ".github/workflows/template-ci.yml", ".github/workflows/release.yml"]
 
 [placeholders.author_name]

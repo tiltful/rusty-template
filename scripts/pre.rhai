@@ -3,8 +3,7 @@ let license = variable::get("license");
 let project_name = variable::get("project-name");
 let github_user = variable::get("github_username");
 
-// cargo-generate.toml is excluded from output through the template ignore list.
-file::delete(".github/workflows/template-ci.yml");
+// Template-only files are removed by the post hook after expansion.
 
 if crate_type == "bin" {
     file::delete("src/lib.rs");
