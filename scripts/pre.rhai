@@ -1,28 +1,28 @@
+print("PRE HOOK: starting template cleanup");
 let crate_type = variable::get("crate_type");
 let license = variable::get("license");
 let project_name = variable::get("project-name");
 let github_user = variable::get("github_username");
-
-// Template-only files are removed by the post hook after expansion.
+print("PRE HOOK: crate_type=" + crate_type + ", license=" + license);
 
 if crate_type == "bin" {
-    file::delete("src/lib.rs");
-    file::delete("benches");
+    if file::exists("src/lib.rs") { file::delete("src/lib.rs"); }
+    if file::exists("benches") { file::delete("benches"); }
 } else {
-    file::delete("src/main.rs");
-    file::delete("Dockerfile");
-    file::delete(".dockerignore");
-    file::delete(".github/workflows/release.yml");
+    if file::exists("src/main.rs") { file::delete("src/main.rs"); }
+    if file::exists("Dockerfile") { file::delete("Dockerfile"); }
+    if file::exists(".dockerignore") { file::delete(".dockerignore"); }
+    if file::exists(".github/workflows/release.yml") { file::delete(".github/workflows/release.yml"); }
 }
 
-file::delete("LICENSE");
+if file::exists("LICENSE") { file::delete("LICENSE"); }
 if license == "MIT" {
-    file::delete("NOTICE");
-    file::delete("LICENSE-APACHE");
-    file::rename("LICENSE-MIT", "LICENSE");
+    if file::exists("NOTICE") { file::delete("NOTICE"); }
+    if file::exists("LICENSE-APACHE") { file::delete("LICENSE-APACHE"); }
+    if file::exists("LICENSE-MIT") { file::rename("LICENSE-MIT", "LICENSE"); }
 } else if license == "Apache-2.0" {
-    file::delete("LICENSE-MIT");
-    file::rename("LICENSE-APACHE", "LICENSE");
+    if file::exists("LICENSE-MIT") { file::delete("LICENSE-MIT"); }
+    if file::exists("LICENSE-APACHE") { file::rename("LICENSE-APACHE", "LICENSE"); }
 }
 
 if file::exists(".github/workflows/release.yml") {
@@ -37,3 +37,4 @@ if file::exists("cliff.toml") {
         .replace("<PROJECT_NAME>", project_name);
     file::write("cliff.toml", content);
 }
+print("PRE HOOK: finished");
