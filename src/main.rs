@@ -72,7 +72,7 @@ async fn main() -> anyhow::Result<()> {
         .await?;
     Ok(())
 }
-{% elsif use_tokio %}
+{% elsif use_tokio or use_sqlx or use_redis or use_reqwest %}
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     {% if use_tracing %}
