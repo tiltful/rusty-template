@@ -56,6 +56,7 @@ Install optional security and release tools individually when needed:
 
 ```sh
 cargo install --locked cargo-audit
+cargo install cargo-machete
 cargo install --locked cargo-deny
 cargo install cargo-cyclonedx
 cargo install git-cliff
