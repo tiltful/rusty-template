@@ -9,13 +9,29 @@ import re
 import sys
 import unicodedata
 
-TYPES = ("feat", "fix", "docs", "style", "refactor", "perf", "test", "build", "ci", "chore", "revert")
+TYPES = (
+    "feat",
+    "fix",
+    "docs",
+    "style",
+    "refactor",
+    "perf",
+    "test",
+    "build",
+    "ci",
+    "chore",
+    "revert",
+)
 HEADER = re.compile(
     r"^(?P<gitmoji>\S+) (?P<type>" + "|".join(TYPES) +
     r")(?:\((?P<scope>[^()\r\n]+)\))?(?P<breaking>❗)?: (?P<description>\S.*)$"
 )
 FOOTER = re.compile(
     r"^(?P<token>🚨 BREAKING CHANGE|BREAKING CHANGE|BREAKING-CHANGE|[A-Za-z0-9][A-Za-z0-9-]*)(?:: | #)(?P<value>\S.*)$"
+)
+BREAKING_FOOTERS = {"🚨 BREAKING CHANGE", "BREAKING CHANGE", "BREAKING-CHANGE"}
+BREAKING_PREFIX = re.compile(
+    r"^(?:🚨 )?breaking[ -]change(?:: | #)", re.IGNORECASE
 )
 SHORTCODE = re.compile(r"^:[a-z0-9_+-]+:$", re.IGNORECASE)
 
@@ -39,35 +55,40 @@ def validate(message: str) -> tuple[bool, str]:
         return False, "expected: <gitmoji> <type>(<scope>)❗: <description>"
 
     footer_start = None
-    for index in range(1, len(lines) - 1):
-        if not lines[index].strip():
-            candidate = lines[index + 1]
-            if re.match(r"^(?:🚨 )?breaking[ -]change(?:: | #)", candidate, re.IGNORECASE):
-                if not any(candidate.startswith(prefix) for prefix in (
-                    "🚨 BREAKING CHANGE: ",
-                    "BREAKING CHANGE: ",
-                    "BREAKING-CHANGE: ",
-                    "BREAKING-CHANGE #",
-                )):
-                    return False, "BREAKING CHANGE footer token must be uppercase"
-            if FOOTER.fullmatch(candidate):
-                footer_start = index + 1
+    for index in range(1, len(lines)):
+        if lines[index - 1].strip():
+            continue
+
+        candidate = lines[index]
+        if BREAKING_PREFIX.match(candidate) and not any(
+            candidate.startswith(f"{token}: ") or candidate.startswith(f"{token} #")
+            for token in BREAKING_FOOTERS
+        ):
+            return False, "BREAKING CHANGE footer token must be uppercase"
+
+        if FOOTER.fullmatch(candidate):
+            footer_start = index
 
     if footer_start is not None:
-        for index, line in enumerate(lines[footer_start:]):
+        previous_was_footer = False
+        for line in lines[footer_start:]:
             if not line.strip():
                 return False, "blank lines are not allowed inside the footer block"
+
             footer = FOOTER.fullmatch(line)
             if footer:
                 token = footer.group("token")
-                if token.lower().replace("-", " ") == "breaking change" and token not in {
-                    "🚨 BREAKING CHANGE", "BREAKING CHANGE", "BREAKING-CHANGE"
-                }:
+                if token.lower().replace("-", " ") == "breaking change" and token not in BREAKING_FOOTERS:
                     return False, "BREAKING CHANGE footer token must be uppercase"
-                if token in {"🚨 BREAKING CHANGE", "BREAKING CHANGE", "BREAKING-CHANGE"} and not footer.group("value"):
+                if token in BREAKING_FOOTERS and not footer.group("value"):
                     return False, "BREAKING CHANGE footer requires a description"
-            elif index == 0:
+                previous_was_footer = True
+            elif line[0].isspace() and previous_was_footer:
+                # Allow indented continuation lines for long trailer values.
+                continue
+            else:
                 return False, "invalid footer"
+
     return True, ""
 
 
