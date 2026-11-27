@@ -80,7 +80,7 @@ jobs:
             license: MIT
             use_tokio: false
             use_tracing: true
-            use_axum: false
+            use_axum: true
             use_sqlx: true
             use_redis: true
             use_reqwest: true
@@ -213,11 +213,11 @@ jobs:
           copyright_year="2026"
           use_tokio=true
           use_tracing=true
-          use_axum=false
-          use_sqlx=false
-          use_redis=false
-          use_reqwest=false
-          use_config=false
+          use_axum=true
+          use_sqlx=true
+          use_redis=true
+          use_reqwest=true
+          use_config=true
           EOF
           cd "${{ runner.temp }}"
           cargo generate --path "$GITHUB_WORKSPACE" --name security-smoke --bin --vcs none --silent --template-values-file "${{ runner.temp }}/security-values.txt"
