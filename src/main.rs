@@ -162,7 +162,9 @@ fn main() -> anyhow::Result<()> {
 }
 {% else %}
 fn main() {
-    {% if use_tracing %}
+    {% if architecture != "minimal" %}
+    run_architecture();
+    {% elsif use_tracing %}
     init_tracing();
     tracing::info!("Application started");
     {% else %}
@@ -171,4 +173,11 @@ fn main() {
 }
 {% endif %}
 {% endif %}
+{% endif %}
+
+{% if architecture == "modular" or architecture == "ddd" %}
+fn run_architecture() {
+    let state = state::AppState::default();
+    println!("{}", presentation::greeting(&state));
+}
 {% endif %}
