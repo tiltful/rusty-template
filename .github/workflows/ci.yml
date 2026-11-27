@@ -90,7 +90,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Validate commit message format
         run: |
-          python3 -m py_compile .commit-message.py
+          python3 -m py_compile .commit-message.py\n          python3 -m unittest discover -s tests -p 'test_*.py'
           printf '%s\n\n%s\n\n%s\n' '♻️ refactor(parser): simplify token handling' 'Explain why the parser change is needed.' 'Refs: #123' > /tmp/commit-message
           python3 .commit-message.py /tmp/commit-message
           printf '%s\\n' ':recycle: refactor(parser): simplify token handling' > /tmp/shortcode-message

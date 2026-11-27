@@ -20,7 +20,7 @@ Install the Git hooks:
 pre-commit install --hook-type pre-commit --hook-type commit-msg
 ```
 
-Run `cargo make quality` before opening a pull request.
+Run `cargo make quality` before opening a pull request. Run `cargo make ci` when all optional tooling (cargo-audit, cargo-deny and git-cliff) is installed.\n\nThe commit-message validator is covered by `python3 -m unittest discover -s tests -p 'test_*.py'`.
 
 ## Commit messages
 
