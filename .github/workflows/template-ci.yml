@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: template-template-ci-${{ github.ref }}
+  group: template-template-ci-v2-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -190,6 +190,7 @@ jobs:
   dependency-security:
     name: Dependency security and SBOM
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
