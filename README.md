@@ -13,10 +13,11 @@
 [![Rust](https://img.shields.io/badge/rust-1.94%2B-orange?style=flat-square&logo=rust&logoColor=white)](https://www.rust-lang.org/)
 [![Stars](https://img.shields.io/github/stars/{{github_username}}/{{project-name}}?style=flat-square&logo=github)](https://github.com/{{github_username}}/{{project-name}}/stargazers)
 [![Forks](https://img.shields.io/github/forks/{{github_username}}/{{project-name}}?style=flat-square&logo=github)](https://github.com/{{github_username}}/{{project-name}}/network/members)
+[![Contributors](https://img.shields.io/github/contributors/{{github_username}}/{{project-name}}?style=flat-square)](https://github.com/{{github_username}}/{{project-name}}/graphs/contributors)
 [![Issues](https://img.shields.io/github/issues/{{github_username}}/{{project-name}}?style=flat-square&logo=github)](https://github.com/{{github_username}}/{{project-name}}/issues)
 [![Last Commit](https://img.shields.io/github/last-commit/{{github_username}}/{{project-name}}?style=flat-square)](https://github.com/{{github_username}}/{{project-name}}/commits/main)
 
-**Built with Rust · Designed for maintainability · Ready for production**
+**Built with Rust · Designed for maintainability · Ready to grow**
 
 </div>
 
