@@ -36,6 +36,12 @@ prompt = "Copyright year"
 regex = "^[0-9]{4}$"
 default = "2026"
 
+[placeholders.architecture]
+type = "string"
+prompt = "Application architecture"
+choices = ["minimal", "modular", "ddd"]
+default = "minimal"
+
 [placeholders.use_tokio]
 type = "bool"
 prompt = "Include Tokio directly? (async integrations enable it automatically)"
@@ -82,3 +88,12 @@ ignore = ["NOTICE"]
 
 [hooks]
 init = ["scripts/init.rhai"]
+
+[conditional.'architecture == "minimal"']
+ignore = ["src/state.rs", "src/application.rs", "src/presentation.rs", "src/domain", "src/infrastructure"]
+
+[conditional.'architecture == "modular"']
+ignore = ["src/domain", "src/infrastructure"]
+
+[conditional.'architecture == "ddd"']
+ignore = ["src/application.rs", "src/presentation.rs"]
