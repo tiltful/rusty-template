@@ -233,9 +233,12 @@ jobs:
         run: cargo deny check
       - name: Generate CycloneDX SBOM
         working-directory: ${{ runner.temp }}/security-smoke
-        run: cargo cyclonedx --format json --override-filename sbom.json
+        run: |
+          cargo cyclonedx --format json --override-filename sbom
+          find . -maxdepth 1 -type f -name '*.json' -print
+          test -n "$(find . -maxdepth 1 -type f -name '*.json' -print -quit)"
       - uses: actions/upload-artifact@v4
         with:
           name: cyclonedx-sbom
-          path: ${{ runner.temp }}/security-smoke/sbom.json
+          path: ${{ runner.temp }}/security-smoke/*.json
           if-no-files-found: error

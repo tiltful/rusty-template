@@ -50,9 +50,9 @@ jobs:
       - name: Check dependency policy
         run: cargo deny check
       - name: Generate CycloneDX SBOM
-        run: cargo cyclonedx --format json --override-filename sbom.json
+        run: cargo cyclonedx --format json --override-filename sbom
       - uses: actions/upload-artifact@v4
         with:
           name: cyclonedx-sbom
-          path: sbom.json
+          path: '*.json'
           if-no-files-found: error
