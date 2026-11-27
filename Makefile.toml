@@ -67,18 +67,26 @@ env = { RUSTDOCFLAGS = "-D warnings" }
 command = "cargo"
 args = ["doc", "--no-deps"]
 
+[tasks.lockfile]
+description = "Resolve dependencies and create Cargo.lock"
+command = "cargo"
+args = ["generate-lockfile"]
+
 [tasks.audit]
 description = "Audit dependencies"
+dependencies = ["lockfile"]
 command = "cargo"
 args = ["audit"]
 
 [tasks.deny]
 description = "Check dependency policy"
+dependencies = ["lockfile"]
 command = "cargo"
 args = ["deny", "check"]
 
 [tasks.sbom]
 description = "Generate CycloneDX JSON SBOM"
+dependencies = ["lockfile"]
 command = "cargo"
 args = ["cyclonedx", "--format", "json"]
 
