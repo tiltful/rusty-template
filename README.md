@@ -4,8 +4,14 @@
 
 {{description}}
 
-[![CI](https://github.com/{{github_username}}/{{project-name}}/actions/workflows/ci.yml/badge.svg)](https://github.com/{{github_username}}/{{project-name}}/actions/workflows/ci.yml)
+[![CI](https://github.com/{{github_username}}/{{project-name}}/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/{{github_username}}/{{project-name}}/actions/workflows/ci.yml)
+[![Coverage](https://codecov.io/gh/{{github_username}}/{{project-name}}/branch/main/graph/badge.svg)](https://codecov.io/gh/{{github_username}}/{{project-name}})
 [![License](https://img.shields.io/github/license/{{github_username}}/{{project-name}})](LICENSE)
+[![Latest Release](https://img.shields.io/github/v/release/{{github_username}}/{{project-name}}?display_name=tag&sort=semver)](https://github.com/{{github_username}}/{{project-name}}/releases/latest)
+[![Rust](https://img.shields.io/badge/rust-1.94%2B-orange?logo=rust)](https://www.rust-lang.org/)
+[![GitHub Stars](https://img.shields.io/github/stars/{{github_username}}/{{project-name}}?style=flat)](https://github.com/{{github_username}}/{{project-name}}/stargazers)
+[![Issues](https://img.shields.io/github/issues/{{github_username}}/{{project-name}})](https://github.com/{{github_username}}/{{project-name}}/issues)
+[![Last Commit](https://img.shields.io/github/last-commit/{{github_username}}/{{project-name}})](https://github.com/{{github_username}}/{{project-name}}/commits/main)
 
 </div>
 
