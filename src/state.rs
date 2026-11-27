@@ -33,7 +33,7 @@ use crate::{application::Greet, infrastructure::StaticGreetingRepository};
 #[derive(Clone, Debug)]
 pub struct AppState {
     /// Greeting use case, shared safely between request handlers.
-    pub greet: Arc<Greet<StaticGreetingRepository>>,
+    pub(crate) greet: Arc<Greet<StaticGreetingRepository>>,
 }
 
 impl Default for AppState {
