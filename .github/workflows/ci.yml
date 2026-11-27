@@ -113,10 +113,17 @@ jobs:
           project="target/smoke-${{ matrix.name }}"
           test -f "$project/Cargo.toml"
           test -f "$project/LICENSE"
+          test -f "$project/.env.example"
+          test -f "$project/cliff.toml"
           test ! -e "$project/LICENSE-MIT"
           test ! -e "$project/LICENSE-APACHE"
           test ! -d "$project/scripts"
           ! grep -Eq '<GITHUB_USER>|<PROJECT_NAME>' "$project/cliff.toml"
+          if [ "${{ matrix.license }}" = "Apache-2.0" ]; then
+            test -f "$project/NOTICE"
+          else
+            test ! -e "$project/NOTICE"
+          fi
           if [ "${{ matrix.crate_type }}" = "lib" ]; then
             test ! -e "$project/.github/workflows/release.yml"
           else
