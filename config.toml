@@ -1,0 +1,3 @@
+# Optional application configuration.
+# Values from .env and the process environment override this file.
+port = 3000

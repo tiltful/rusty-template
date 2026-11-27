@@ -1,0 +1,156 @@
+[config]
+min_version = "0.37.0"
+default_to_workspace = false
+
+[env]
+RUST_BACKTRACE = "1"
+CARGO_TERM_COLOR = "always"
+
+[tasks.default]
+alias = "help"
+
+[tasks.help]
+description = "Show available tasks"
+command = "cargo"
+args = ["make", "--list-all-steps"]
+
+[tasks.check]
+description = "Check all targets"
+command = "cargo"
+args = ["check", "--all-targets"]
+
+[tasks.build]
+description = "Build debug"
+command = "cargo"
+args = ["build"]
+
+[tasks.build-release]
+description = "Build release"
+command = "cargo"
+args = ["build", "--release"]
+
+{% if crate_type == "bin" %}
+[tasks.run]
+description = "Run binary crate"
+command = "cargo"
+args = ["run"]
+{% endif %}
+
+[tasks.fmt]
+description = "Format code"
+command = "cargo"
+args = ["fmt", "--all"]
+
+[tasks.fmt-check]
+description = "Check formatting"
+command = "cargo"
+args = ["fmt", "--all", "--", "--check"]
+
+[tasks.clippy]
+description = "Run Clippy"
+command = "cargo"
+args = ["clippy", "--all-targets", "--", "-D", "warnings"]
+
+[tasks.test]
+description = "Run tests"
+command = "cargo"
+args = ["test"]
+
+[tasks.nextest]
+description = "Run tests with cargo-nextest"
+command = "cargo"
+args = ["nextest", "run"]
+
+[tasks.doc]
+description = "Build docs with warnings denied"
+env = { RUSTDOCFLAGS = "-D warnings" }
+command = "cargo"
+args = ["doc", "--no-deps"]
+
+[tasks.lockfile]
+description = "Resolve dependencies and create Cargo.lock"
+command = "cargo"
+args = ["generate-lockfile"]
+
+[tasks.audit]
+description = "Audit dependencies"
+dependencies = ["lockfile"]
+command = "cargo"
+args = ["audit"]
+
+[tasks.deny]
+description = "Check dependency policy"
+dependencies = ["lockfile"]
+command = "cargo"
+args = ["deny", "check"]
+
+[tasks.sbom]
+description = "Generate CycloneDX JSON SBOM"
+dependencies = ["lockfile"]
+command = "cargo"
+args = ["cyclonedx", "--format", "json"]
+
+[tasks.pre-commit]
+description = "Run all hooks"
+command = "pre-commit"
+args = ["run", "--all-files"]
+
+[tasks.quality]
+description = "Run local quality gates"
+dependencies = ["fmt-check", "check", "clippy", "test"]
+
+[tasks.ci]
+description = "Run full local CI"
+dependencies = ["quality", "audit", "deny", "doc", "sbom"]
+
+[tasks.changelog]
+description = "Generate changelog"
+command = "git-cliff"
+args = ["--output", "CHANGELOG.md"]
+
+[tasks.changelog-unreleased]
+description = "Generate unreleased changelog"
+command = "git-cliff"
+args = ["--unreleased"]
+
+[tasks.release-patch-dry]
+description = "Preview patch release"
+command = "cargo"
+args = ["release", "patch"]
+
+[tasks.release-minor-dry]
+description = "Preview minor release"
+command = "cargo"
+args = ["release", "minor"]
+
+[tasks.release-major-dry]
+description = "Preview major release"
+command = "cargo"
+args = ["release", "major"]
+
+[tasks.release-patch]
+description = "Execute patch release"
+command = "cargo"
+args = ["release", "patch", "--execute"]
+
+[tasks.release-minor]
+description = "Execute minor release"
+command = "cargo"
+args = ["release", "minor", "--execute"]
+
+[tasks.release-major]
+description = "Execute major release"
+command = "cargo"
+args = ["release", "major", "--execute"]
+
+{% if crate_type == "bin" %}
+[tasks.docker-build]
+description = "Build static scratch image"
+command = "docker"
+args = ["build", "-t", "{{project-name}}:local", "."]
+
+[tasks.docker-run]
+description = "Run container locally"
+command = "docker"
+args = ["run", "--rm", "-p", "3000:3000", "--env-file", ".env.example", "--name", "{{project-name}}", "{{project-name}}:local"]
+{% endif %}

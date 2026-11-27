@@ -1,21 +1,43 @@
+# syntax=docker/dockerfile:1
+
 ARG APP_NAME={{project-name}}
 
-FROM rust:slim-bullseye AS builder
-ARG APP_NAME
-
+FROM rust:slim-trixie AS chef
+RUN cargo install --locked cargo-chef --version 0.1.78
 WORKDIR /app
+
+FROM chef AS planner
 COPY . .
+RUN cargo chef prepare --recipe-path recipe.json
 
-RUN apt-get update && \
-    apt-get install -y musl-tools upx && \
-    rustup target add x86_64-unknown-linux-musl && \
-    cargo build --release --target x86_64-unknown-linux-musl --bin  && \
-    strip target/x86_64-unknown-linux-musl/release/ && \
-    upx --best --lzma target/x86_64-unknown-linux-musl/release/
+FROM chef AS builder
+COPY rust-toolchain.toml rust-toolchain.toml
+RUN rustup target add x86_64-unknown-linux-musl \
+    && apt-get update \
+    && apt-get install --no-install-recommends -y musl-tools musl-dev gcc g++ make cmake perl pkg-config ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+ENV CC_x86_64_unknown_linux_musl=musl-gcc
+ENV CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER=musl-gcc
 
-FROM gcr.io/distroless/static
+COPY --from=planner /app/recipe.json recipe.json
+RUN cargo chef cook --release --target x86_64-unknown-linux-musl --recipe-path recipe.json
+
 ARG APP_NAME
+COPY . .
+RUN cargo build --release \
+    --target x86_64-unknown-linux-musl --bin ${APP_NAME} \
+    && mkdir -p /tmp && chmod 1777 /tmp
 
-COPY --from=builder /app/target/x86_64-unknown-linux-musl/release/ /usr/local/bin/app
-
+FROM scratch AS runtime
+ARG APP_NAME
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+WORKDIR /app
+{% if use_config %}
+COPY --from=builder /app/config.toml /app/config.toml
+{% endif %}
+ENV PORT=3000
+ENV RUST_LOG=info
+COPY --from=builder --chown=10001:10001 /tmp /tmp
+COPY --from=builder /app/target/x86_64-unknown-linux-musl/release/${APP_NAME} /usr/local/bin/app
+USER 10001:10001
 ENTRYPOINT ["/usr/local/bin/app"]

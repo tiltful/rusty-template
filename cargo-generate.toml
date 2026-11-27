@@ -1,36 +1,102 @@
 [template]
-cargo_generate_version = ">=0.21.0"
-exclude = ['cliff.toml']
+cargo_generate_version = ">=0.24.0"
+ignore = ["Cargo.lock", "target", "__pycache__", ".venv", "cargo-generate.toml", "scripts", "tests", ".github/workflows/template-ci.yml", "LICENSE-MIT", "LICENSE-APACHE"]
+exclude = ["release.toml", ".github/workflows/ci.yml", ".github/workflows/release.yml"]
 
 [placeholders.author_name]
 type = "string"
-prompt = "Author name and email (e.g., 'John Doe <john@example.com>')"
-default = "tiltful <git@tilt.ninja>"
+prompt = "Author name and email"
+default = "Tilt <git@tilt.ninja>"
 
 [placeholders.description]
 type = "string"
 prompt = "Project description"
-default = ""
+default = "A Rust project"
 
 [placeholders.github_username]
 type = "string"
 prompt = "GitHub username"
-regex = "^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$"
+regex = "^[A-Za-z0-9]([A-Za-z0-9-]{0,37}[A-Za-z0-9])?$"
 default = "tiltful"
 
 [placeholders.license]
 type = "string"
 prompt = "License"
-choices = ["MIT", "Apache-2.0", "GPL-3.0", "BSD-3-Clause"]
+choices = ["MIT", "Apache-2.0"]
 default = "MIT"
 
-[conditional.'license == "MIT"']
-ignore = ["LICENSE-APACHE"]
+[placeholders.copyright_holder]
+type = "string"
+prompt = "Copyright holder"
+default = "Tilt"
 
-[conditional.'license == "Apache-2.0"']
-ignore = ["LICENSE-MIT"]
+[placeholders.copyright_year]
+type = "string"
+prompt = "Copyright year"
+regex = "^[0-9]{4}$"
+default = "2026"
+
+[placeholders.architecture]
+type = "string"
+prompt = "Application architecture"
+choices = ["minimal", "modular", "ddd"]
+default = "minimal"
+
+[placeholders.use_tokio]
+type = "bool"
+prompt = "Include Tokio directly? (async integrations enable it automatically)"
+default = true
+
+[placeholders.use_tracing]
+type = "bool"
+prompt = "Include tracing and tracing-subscriber?"
+default = true
+
+[placeholders.use_axum]
+type = "bool"
+prompt = "Include Axum web framework?"
+default = false
+
+[placeholders.use_sqlx]
+type = "bool"
+prompt = "Include SQLx (PostgreSQL)?"
+default = false
+
+[placeholders.use_redis]
+type = "bool"
+prompt = "Include Redis async client?"
+default = false
+
+[placeholders.use_reqwest]
+type = "bool"
+prompt = "Include reqwest HTTP client?"
+default = false
+
+[placeholders.use_config]
+type = "bool"
+prompt = "Include config + dotenvy?"
+default = false
+
+[conditional.'crate_type == "bin"']
+ignore = ["src/lib.rs", "benches"]
+
+[conditional.'crate_type == "lib"']
+ignore = ["src/main.rs", "Dockerfile", ".dockerignore", ".github/workflows/release.yml", "src/state.rs", "src/app.rs", "src/presentation.rs", "src/domain", "src/infrastructure", "src/application"]
+
+[conditional.'license == "MIT"']
+ignore = ["NOTICE"]
 
 [hooks]
 init = ["scripts/init.rhai"]
-pre = ["scripts/pre.rhai"]
-post = ["scripts/post.rhai"]
+
+[conditional.'architecture == "minimal"']
+ignore = ["src/state.rs", "src/app.rs", "src/presentation.rs", "src/domain", "src/infrastructure", "src/application"]
+
+[conditional.'architecture == "modular"']
+ignore = ["src/domain", "src/infrastructure", "src/application"]
+
+[conditional.'architecture == "ddd"']
+ignore = ["src/app.rs"]
+
+[conditional.'use_config == false']
+ignore = ["config.toml"]

@@ -1,62 +1,117 @@
 <div align="center">
 
-[![Preview](/path/to/favicon.png)](https://github.com/{{github_username}}/{{project-name}})
 <h1>{{project-name}}</h1>
 
----
-[![GitHub License](https://img.shields.io/github/license/{{github_username}}/{{project-name}})](https://github.com/{{github_username}}/{{project-name}}/blob/main/LICENSE "license")
-[![Tests](https://img.shields.io/github/actions/workflow/status/{{github_username}}/{{project-name}}/ci.yml?style=flat-square&logo=github&label=Tests)](https://github.com/{{github_username}}/{{project-name}}/tests)
-[![Forks](https://custom-icon-badges.demolab.com/github/forks/{{github_username}}/{{project-name}}?logo=fork)](https://github.com/{{github_username}}/{{project-name}}/network/members)
-[![Contributors](https://custom-icon-badges.demolab.com/github/contributors/{{github_username}}/{{project-name}}?logo=people)](https://github.com/{{github_username}}/{{project-name}}/graphs/contributors)
-[![Stars](https://custom-icon-badges.demolab.com/github/stars/{{github_username}}/{{project-name}}?logo=star)](https://github.com/{{github_username}}/{{project-name}}/stargazers')
-[![Open issues](https://custom-icon-badges.demolab.com/github/issues-raw/{{github_username}}/{{project-name}}?logo=issue)](https://github.com/{{github_username}}/{{project-name}}/issues)
+{{description}}
 
+[![CI](https://github.com/{{github_username}}/{{project-name}}/actions/workflows/ci.yml/badge.svg)](https://github.com/{{github_username}}/{{project-name}}/actions/workflows/ci.yml)
+[![License](https://img.shields.io/github/license/{{github_username}}/{{project-name}})](LICENSE)
 
-[![Powered by Rust](https://custom-icon-badges.herokuapp.com/badge/-Powered%20by%20Rust-0d1620?logo=rust)](https://www.rust-lang.org/ "Powered by Rust")
 </div>
 
-___
+## Features
 
-## 🧩 Installation
+- Rust 2024, stable toolchain and unsafe-code prohibition
+- Selectable minimal, modular and DDD architecture profiles
+- Cloneable application state, use-case boundaries, domain invariants and repository ports when an architecture profile is selected
+- Selectable Tokio, tracing, Axum, SQLx, Redis, reqwest and config dependencies
+- Structured JSON logs with environment filtering and tracing-error context
+- Axum starter with gzip compression, HTTP request tracing and graceful shutdown
+- Typed configuration with optional `config.toml`, `.env` loading, `APP_PORT` environment overrides and validated `u16` port values
+- Optional SQLx/PostgreSQL, Redis and rustls-based reqwest client setup
+- Binary and library projects receive only relevant tasks and assets
+- cargo-chef multi-stage Docker build with minimal scratch runtime
+- Formatting, Clippy, tests, security auditing, CycloneDX SBOM, changelog and cross-platform GitHub Releases
+
+## Architecture profiles
+
+Choose an architecture profile during generation:
+
+- `minimal` keeps a single entrypoint and adds no architectural ceremony.
+- `modular` separates application logic, presentation mapping and cloneable process state.
+- `ddd` demonstrates a small domain model with validated value objects, a repository port, an application use case, an infrastructure adapter and shared application state.
+
+These profiles use the standard library only. Axum can be enabled independently; when selected with `modular` or `ddd`, the generated route receives the typed `AppState` through Axum's `State` extractor. Treat the examples as a starting boundary, not a mandate to create a layer for every function.
+
+## Configuration
+
+When `config + dotenvy` is selected, the application loads optional `config.toml`, then `.env`, then process environment variables. Later sources take precedence, so environment variables override file values. The HTTP port is exposed as `APP_PORT` (default `3000`); the generated `.env.example` also includes `PORT` for projects that do not enable the config integration. The port is deserialized as `u16`, so malformed and out-of-range values fail at startup rather than being silently accepted. Copy `.env.example` to `.env` for local development. The Docker image includes the generated `config.toml` when this integration is selected; provide secrets through runtime environment variables, never by committing them.
+
+Example `config.toml`:
+
+```toml
+port = 3000
 ```
-git clone https://github.com/{{github_username}}/{{project-name}}.git 
-cd {{project-name}}
-cargo build
+
+## Getting started
+
+Install Rust using [rustup](https://rustup.rs/) and cargo-make:
+
+```sh
+cargo install cargo-make
 ```
 
-## ⚙ Configuration
-Open `conf/cfg.toml` and fill in the values
+Generate a project with the interactive prompts:
 
-### Setup environment variables
+```sh
+cargo generate --git https://github.com/tiltful/rusty-template
+```
 
+Or use a local checkout while developing the template:
 
-## 🚀 Launch
-Run `cargo run` or `make start`.
+```sh
+cargo generate --path .
+```
 
-## 🧪 Tests
-Run `cargo test` or `make test`.
+Then build and test:
 
-___
+```sh
+cargo make quality
+```
 
-## 🌐 Deployment
-Run `docker-compose up -d`.
-___
+For the full local CI suite, install the optional security and SBOM tools. The tasks create `Cargo.lock` before auditing dependencies, so a freshly generated project works without a committed lockfile:
 
-## 🤝 Contributing
+```sh
+cargo make ci
+```
 
-Contributions are what make the open source community an amazing place to learn, be inspired, and create.
-Any contributions you make are **greatly appreciated**.
+Install optional security and release tools individually when needed:
 
-1. [Fork the repository](https://github.com/{{github_username}}/{{project-name}}/fork)
-2. Clone your fork `git clone https://github.com/{{github_username}}/{{project-name}}.git`
-3. Create your feature branch `git checkout -b AmazingFeature`
-4. Stage changes `git add .`
-5. Commit your changes `git commit -m 'Added some AmazingFeature'`
-6. Push to the branch `git push origin AmazingFeature`
-7. Submit a pull request
+```sh
+cargo install --locked cargo-audit
+cargo install cargo-machete
+cargo install --locked cargo-deny
+cargo install cargo-cyclonedx
+cargo install git-cliff
+cargo install cargo-release
+```
 
-## ❤️ Credits
+Install the commit hooks with [pre-commit](https://pre-commit.com/). The template validates commit headers, optional bodies, trailer footers, and breaking-change markers:
 
-Released with ❤️ by [{{authors}}](https://github.com/{{github_username}}).
+```sh
+pre-commit install --hook-type pre-commit --hook-type commit-msg
+```
 
-<!-- generated with cargo-generate thanks by <Tilt?> -->
+For binary projects, push a version tag such as `v0.1.0` to build Linux (GNU and musl), Windows and macOS binaries and publish a GitHub Release.
+
+## Commit messages
+
+Use Gitmoji + Conventional Commits:
+
+```text
+✨ feat(api): add endpoint
+
+Add the endpoint and document its response format.
+
+Closes #123
+```
+
+Format: `<gitmoji> <type>(<scope>): <description>`.
+An optional body starts after one blank line. Optional footers start after
+another blank line and use trailer syntax, for example `Closes: #123`.
+Breaking changes use `❗` before the colon or a
+`🚨 BREAKING CHANGE: ...` footer.
+
+## License
+
+Licensed under the {{license}} license. See [LICENSE](LICENSE).

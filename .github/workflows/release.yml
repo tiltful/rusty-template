@@ -1,0 +1,119 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            musl: false
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            musl: true
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            musl: false
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            musl: false
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            musl: false
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          target: ${{ matrix.target }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target }}
+      - name: Install musl linker
+        if: matrix.musl
+        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y musl-tools
+      - name: Configure musl linker
+        if: matrix.musl
+        run: echo "CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER=musl-gcc" >> "$GITHUB_ENV"
+      - name: Determine binary name
+        id: app-name-unix
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          app_name="$(cargo metadata --no-deps --format-version 1 | python3 -c 'import json,sys; p=json.load(sys.stdin)["packages"][0]; print(next(t["name"] for t in p["targets"] if "bin" in t["kind"]))')"
+          echo "name=$app_name" >> "$GITHUB_OUTPUT"
+      - name: Determine binary name (Windows)
+        id: app-name-windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $metadata = cargo metadata --no-deps --format-version 1 | ConvertFrom-Json
+          $appName = ($metadata.packages[0].targets | Where-Object { $_.kind -contains 'bin' } | Select-Object -First 1).name
+          "name=$appName" >> $env:GITHUB_OUTPUT
+      - name: Build release binary
+        run: cargo build --release --target ${{ matrix.target }}
+      - name: Package Windows binary
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Compress-Archive -Path "target/${{ matrix.target }}/release/${{ steps.app-name-windows.outputs.name }}.exe" -DestinationPath "dist/${{ steps.app-name-windows.outputs.name }}-${{ matrix.target }}.zip"
+      - name: Package Unix binary
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          mkdir -p dist
+          tar -czf "dist/${{ steps.app-name-unix.outputs.name }}-${{ matrix.target }}.tar.gz" -C "target/${{ matrix.target }}/release" "${{ steps.app-name-unix.outputs.name }}"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: release-${{ matrix.target }}
+          path: dist/*
+          if-no-files-found: error
+
+  publish:
+    name: Publish GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: release-*
+          path: dist
+          merge-multiple: true
+      - name: Install SBOM generator
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-cyclonedx
+      - name: Resolve release dependencies
+        run: cargo generate-lockfile
+      - name: Generate CycloneDX SBOM
+        run: |
+          cargo cyclonedx --format json --override-filename sbom
+          sbom_file="$(find . -maxdepth 1 -type f -name 'sbom*.json' -print -quit)"
+          test -n "$sbom_file"
+          test -s "$sbom_file"
+          mkdir -p dist
+          cp "$sbom_file" dist/
+      - name: Generate checksums
+        run: cd dist && sha256sum ./* > SHA256SUMS
+      - uses: softprops/action-gh-release@v3
+        with:
+          files: dist/*
+          generate_release_notes: true

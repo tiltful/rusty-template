@@ -1,66 +1,58 @@
+name: CI
+
 on:
   push:
-    branches:
-      - main
-  pull_request: {}
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTDOCFLAGS: -D warnings
 
 jobs:
-  build-and-test:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        rust:
-          - stable
-          - beta
-          - nightly
-    runs-on: ${{ matrix.os }}
+  quality:
+    if: github.repository != 'tiltful/rusty-template'
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@master
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: ${{ matrix.rust }}
-      - name: Build
-        run: cargo build --verbose
-      - name: Test
-        run: cargo test --verbose
-
-  lint:
-    needs: build-and-test
-    strategy:
-      matrix:
-        os: [ ubuntu-latest, macos-latest, windows-latest ]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Rust with Clippy
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: stable
-          components: clippy
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@v2
+      - name: Format
+        run: cargo fmt --all -- --check
+      - name: Check
+        run: cargo check --all-targets
       - name: Clippy
-        run: cargo clippy --verbose -- -D warnings
-
-  security-audit:
-    needs: build-and-test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
-      - name: Install cargo-audit
-        run: cargo install cargo-audit
-      - name: Run cargo-audit
+        run: cargo clippy --all-targets -- --deny warnings
+      - name: Test
+        run: cargo test
+      - name: Rustdoc
+        run: cargo doc --no-deps
+      - name: Build container
+        if: hashFiles('Dockerfile') != ''
+        run: docker build -t ${{ github.event.repository.name }}:ci .
+      - name: Install dependency tools
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-audit,cargo-deny,cargo-cyclonedx
+      - name: Generate lockfile
+        run: cargo generate-lockfile
+      - name: Audit dependencies
         run: cargo audit
-
-  dependency-checks:
-    needs: build-and-test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
-      - name: Install cargo-deny
-        run: cargo install cargo-deny
-      - name: Run cargo-deny
+      - name: Check dependency policy
         run: cargo deny check
+      - name: Generate CycloneDX SBOM
+        run: cargo cyclonedx --format json --override-filename sbom
+      - uses: actions/upload-artifact@v7
+        with:
+          name: cyclonedx-sbom
+          path: '*.json'
+          if-no-files-found: error

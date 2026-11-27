@@ -1,2 +1,2 @@
-print("🚀 Initializing Rust project template...");
-print("📦 This template includes benchmarks, tests, and CI/CD setup");
+print("🦀 Creating a Rust project with rusty-template...");
+print("Choose optional framework and infrastructure dependencies.");
