@@ -19,20 +19,35 @@
 
 ## Getting started
 
-Install Rust using rustup, then run:
+Install Rust using [rustup](https://rustup.rs/) and cargo-make:
 
 ```sh
-cargo build
-cargo test
+cargo install cargo-make
+```
+
+Then build and test:
+
+```sh
 cargo make quality
 ```
 
-Install cargo-make with `cargo install cargo-make`.
-Install optional security/release tools as needed: `cargo install --locked cargo-audit cargo-deny git-cliff cargo-release` and `cargo install cargo-cyclonedx`.
+Install optional security and release tools individually when needed:
 
-Install the commit hooks with `pre-commit install --hook-type pre-commit --hook-type commit-msg`.
+```sh
+cargo install --locked cargo-audit
+cargo install --locked cargo-deny
+cargo install cargo-cyclonedx
+cargo install git-cliff
+cargo install cargo-release
+```
 
-For binary projects, push a version tag such as `v0.1.0` to build Linux, Windows and macOS binaries and publish a GitHub Release.
+Install the commit hooks with [pre-commit](https://pre-commit.com/):
+
+```sh
+pre-commit install --hook-type pre-commit --hook-type commit-msg
+```
+
+For binary projects, push a version tag such as `v0.1.0` to build Linux (GNU and musl), Windows and macOS binaries and publish a GitHub Release.
 
 ## Commit messages
 
