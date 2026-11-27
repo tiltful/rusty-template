@@ -8,6 +8,9 @@ pub fn greeting(state: &AppState) -> String {
     {% if architecture == "modular" %}
     format!("{} Uptime: {}s", crate::app::greeting(), state.uptime_seconds())
     {% elsif architecture == "ddd" %}
-    state.greet.execute().as_str().to_owned()
+    match state.greet.execute() {
+        Ok(greeting) => greeting.as_str().to_owned(),
+        Err(error) => format!("Greeting failed: {error}"),
+    }
     {% endif %}
 }
