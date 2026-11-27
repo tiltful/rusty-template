@@ -11,11 +11,11 @@ import unicodedata
 
 TYPES = ("feat", "fix", "docs", "style", "refactor", "perf", "test", "build", "ci", "chore", "revert")
 HEADER = re.compile(
-    r"^(?P<gitmoji>\\S+) (?P<type>" + "|".join(TYPES) +
-    r")(?:\\((?P<scope>[^()\\r\\n]+)\\))?(?P<breaking>❗)?: (?P<description>\\S.*)$"
+    r"^(?P<gitmoji>\S+) (?P<type>" + "|".join(TYPES) +
+    r")(?:\((?P<scope>[^()\r\n]+)\))?(?P<breaking>❗)?: (?P<description>\S.*)$"
 )
 FOOTER = re.compile(
-    r"^(?P<token>🚨 BREAKING CHANGE|BREAKING CHANGE|BREAKING-CHANGE|[A-Za-z0-9][A-Za-z0-9-]*)(?:: | #)(?P<value>\\S.*)$"
+    r"^(?P<token>🚨 BREAKING CHANGE|BREAKING CHANGE|BREAKING-CHANGE|[A-Za-z0-9][A-Za-z0-9-]*)(?:: | #)(?P<value>\S.*)$"
 )
 SHORTCODE = re.compile(r"^:[a-z0-9_+-]+:$", re.IGNORECASE)
 
@@ -30,7 +30,7 @@ def is_gitmoji(token: str) -> bool:
 
 
 def validate(message: str) -> tuple[bool, str]:
-    lines = message.rstrip("\\n").splitlines()
+    lines = message.rstrip("\n").splitlines()
     if not lines or not lines[0].strip():
         return False, "commit message is empty"
 

@@ -71,6 +71,19 @@ class CommitMessageTests(unittest.TestCase):
         message = "♻️ refactor(api): change token format\n\nBREAKING-CHANGE: old tokens are rejected\n"
         self.assertEqual(validate(message).returncode, 0)
 
+    def test_accepts_standard_breaking_change_footer(self):
+        message = "♻️ refactor(api): change token format\n\nBREAKING CHANGE: old tokens are rejected\n"
+        self.assertEqual(validate(message).returncode, 0)
+
+    def test_rejects_multiple_emoji_as_gitmoji(self):
+        self.assertNotEqual(validate("🔥🔥 feat: add feature\n").returncode, 0)
+
+    def test_rejects_plus_as_gitmoji(self):
+        self.assertNotEqual(validate("+ feat: add feature\n").returncode, 0)
+
+    def test_rejects_uppercase_type(self):
+        self.assertNotEqual(validate("✨ FEAT: add feature\n").returncode, 0)
+
 
 if __name__ == "__main__":
     unittest.main()
