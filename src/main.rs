@@ -283,6 +283,7 @@ mod settings_tests {
         Ok(())
     }
 
+    #[test]
     fn invalid_port_is_rejected() -> Result<(), Box<dyn std::error::Error>> {
         let result = config::Config::builder()
             .set_override("port", "70000")?
