@@ -7,6 +7,7 @@ Bodies are free-form. Optional footers follow trailer syntax.
 from pathlib import Path
 import re
 import sys
+import unicodedata
 
 TYPES = ("feat", "fix", "docs", "style", "refactor", "perf", "test", "build", "ci", "chore", "revert")
 HEADER = re.compile(
@@ -23,7 +24,7 @@ SHORTCODE = re.compile(r"^:[a-z0-9_+-]+:$", re.IGNORECASE)
 def is_gitmoji(token: str) -> bool:
     # Accept Unicode Gitmoji and their canonical :shortcode: representation.
     return bool(SHORTCODE.fullmatch(token)) or any(
-        not char.isalnum() and char not in "_-" for char in token
+        unicodedata.category(char) in {"So", "Sm", "Sk"} for char in token
     )
 
 

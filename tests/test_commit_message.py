@@ -49,6 +49,9 @@ class CommitMessageTests(unittest.TestCase):
     def test_rejects_missing_gitmoji(self):
         self.assertNotEqual(validate("refactor(parser): simplify parser\n").returncode, 0)
 
+    def test_rejects_punctuation_as_gitmoji(self):
+        self.assertNotEqual(validate("!!! refactor(parser): simplify parser\n").returncode, 0)
+
     def test_rejects_empty_description(self):
         self.assertNotEqual(validate("♻️ refactor(parser): \n").returncode, 0)
 
