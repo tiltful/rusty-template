@@ -199,7 +199,7 @@ jobs:
       - name: Check dependency usage
         run: cargo machete "${{ runner.temp }}/smoke-${{ matrix.name }}"
       - name: Build binary Docker image
-        if: matrix.crate_type == 'bin'
+        if: matrix.name == 'binary-minimal' || matrix.name == 'binary-integrations'
         run: docker build -t smoke-template:ci ${{ runner.temp }}/smoke-${{ matrix.name }}
 
   dependency-security:
