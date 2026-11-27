@@ -70,14 +70,31 @@ Integrations are opt-in. Enable only what your project actually uses.
 
 ### Prerequisites
 
-- [Rust](https://rustup.rs/) (stable toolchain)
-- [cargo-make](https://github.com/sagiegurari/cargo-make)
+- [Rust](https://rustup.rs/) with the stable toolchain
+- [cargo-generate](https://github.com/cargo-generate/cargo-generate) to create a project from this template
+- [cargo-make](https://github.com/sagiegurari/cargo-make) for the task shortcuts
 
-Install cargo-make:
+Install the template generator and task runner:
 
 ```sh
-cargo install cargo-make
+cargo install cargo-generate cargo-make
 ```
+
+### Generate a project
+
+Run the interactive generator:
+
+```sh
+cargo generate --git https://github.com/tiltful/rusty-template
+```
+
+Or generate from a local checkout while developing the template:
+
+```sh
+cargo generate --path .
+```
+
+The prompts let you choose the package type, architecture profile, license and optional integrations. Review the generated files and initialize your own Git repository before pushing.
 
 ### Build and run
 
@@ -136,28 +153,36 @@ docker run --rm -p 3000:3000 {{project-name}}
 
 | Command | What it checks |
 | --- | --- |
-| cargo make fmt | Formatting |
-| cargo make lint | Clippy with warnings denied |
+| cargo make fmt | Apply Rust formatting |
+| cargo make fmt-check | Verify formatting without changing files |
+| cargo make clippy | Clippy with warnings denied |
 | cargo make test | Unit and integration tests |
-| cargo make docs | Documentation build |
+| cargo make doc | Documentation build with warnings denied |
 | cargo make audit | Known dependency vulnerabilities |
 | cargo make deny | Dependency and license policy |
 | cargo make sbom | CycloneDX software bill of materials |
 | cargo make quality | Core local quality checks |
 | cargo make ci | Full CI task set |
 
-Coverage is collected with cargo-llvm-cov in GitHub Actions and uploaded to Codecov. The badge reports measured coverage; it may remain unavailable until the repository is connected to Codecov and its first report has been uploaded. For private repositories, configure the CODECOV_TOKEN secret if required.
+Coverage is collected with cargo-llvm-cov in GitHub Actions and uploaded to Codecov. The badge reports measured coverage; it may remain unavailable until the repository is connected to Codecov and its first report has been uploaded. The upload is configured not to fail CI when Codecov is unavailable.
 
 Install the optional tools used by the full CI task set:
 
 ```sh
 cargo install --locked cargo-audit
-cargo install cargo-machete
 cargo install --locked cargo-deny
 cargo install cargo-cyclonedx
-cargo install git-cliff
-cargo install cargo-release
 ```
+
+The GitHub Actions workflow also collects coverage with cargo-llvm-cov and uploads the LCOV report to Codecov. The coverage upload is informational and does not fail CI if Codecov is unavailable. Connect the generated repository to Codecov to activate the percentage badge.
+
+For the optional changelog and release-management tasks, install:
+
+```sh
+cargo install git-cliff cargo-release
+```
+
+The pre-commit task additionally requires [pre-commit](https://pre-commit.com/) and Python 3.
 
 ## 📦 Releases
 
@@ -184,7 +209,7 @@ Contributions, bug reports and thoughtful suggestions are welcome.
 4. Follow the commit format below.
 5. Open a pull request with context, motivation and test results.
 
-Install the repository hooks with [pre-commit](https://pre-commit.com/):
+Install [pre-commit](https://pre-commit.com/) and Python 3, then install the repository hooks:
 
 ```sh
 pre-commit install --hook-type pre-commit --hook-type commit-msg
