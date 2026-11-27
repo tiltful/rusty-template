@@ -15,6 +15,31 @@ fn init_tracing() {
         .init();
 }
 {% endif %}
+{% if use_config or use_sqlx or use_redis or use_reqwest %}
+fn init_integrations() -> anyhow::Result<()> {
+    {% if use_config %}
+    dotenvy::dotenv().ok();
+    let _settings = config::Config::builder()
+        .add_source(config::Environment::default())
+        .build()?;
+    {% endif %}
+    {% if use_sqlx %}
+    // Configure the pool here and connect once DATABASE_URL is available.
+    let _database_pool_options = sqlx::postgres::PgPoolOptions::new();
+    let _now = time::OffsetDateTime::now_utc();
+    let _request_id = uuid::Uuid::now_v7();
+    {% endif %}
+    {% if use_redis %}
+    let redis_url = std::env::var("REDIS_URL")
+        .unwrap_or_else(|_| "redis://127.0.0.1/".to_owned());
+    let _redis_client = redis::Client::open(redis_url)?;
+    {% endif %}
+    {% if use_reqwest %}
+    let _http_client = reqwest::Client::builder().build()?;
+    {% endif %}
+    Ok(())
+}
+{% endif %}
 {% if use_axum %}
 use axum::{routing::get, Router};
 use tower_http::compression::CompressionLayer;
@@ -53,6 +78,9 @@ async fn main() -> anyhow::Result<()> {
     {% if use_tracing %}
     init_tracing();
     {% endif %}
+    {% if use_config or use_sqlx or use_redis or use_reqwest %}
+    init_integrations()?;
+    {% endif %}
 
     let app = Router::new()
         .route("/", get(|| async { "Hello, world!" }))
@@ -78,6 +106,9 @@ async fn main() -> anyhow::Result<()> {
     {% if use_tracing %}
     init_tracing();
     tracing::info!("Application started");
+    {% endif %}
+    {% if use_config or use_sqlx or use_redis or use_reqwest %}
+    init_integrations()?;
     {% endif %}
     Ok(())
 }
