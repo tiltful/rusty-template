@@ -238,7 +238,7 @@ fn run_architecture() {
 {% if use_config %}
 #[cfg(test)]
 mod settings_tests {
-    use super::Settings;
+    use super::{load_settings, Settings};
 
     #[test]
     fn missing_configuration_uses_default_port() -> Result<(), Box<dyn std::error::Error>> {
