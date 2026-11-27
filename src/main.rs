@@ -47,7 +47,7 @@ fn load_settings() -> anyhow::Result<Settings> {
 
     Ok(config::Config::builder()
         .add_source(config::File::with_name("config").required(false))
-        .add_source(config::Environment::with_prefix("APP").separator("__").try_parsing(true))
+        .add_source(config::Environment::with_prefix("APP").prefix_separator("_").separator("__").try_parsing(true))
         .build()?
         .try_deserialize()?)
 }
