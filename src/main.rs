@@ -9,7 +9,10 @@ use tracing_subscriber::EnvFilter;
 {% endif %}
 {% if use_axum %}
 use axum::{routing::get, Router};
-use tower_http::{compression::CompressionLayer, trace::TraceLayer};
+use tower_http::compression::CompressionLayer;
+{% if use_tracing %}
+use tower_http::trace::TraceLayer;
+{% endif %}
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -22,8 +25,10 @@ async fn main() -> anyhow::Result<()> {
 
     let app = Router::new()
         .route("/", get(|| async { "Hello, world!" }))
-        .layer(CompressionLayer::new())
-        .layer(TraceLayer::new_for_http());
+        .layer(CompressionLayer::new());
+    {% if use_tracing %}
+    let app = app.layer(TraceLayer::new_for_http());
+    {% endif %}
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await?;
     {% if use_tracing %}
     tracing::info!("HTTP server listening on {}", listener.local_addr()?);
