@@ -19,7 +19,7 @@ where
     }
 
     /// Executes the use case.
-    #[must_use]
+    #[must_use = "the caller must handle the use-case result"]
     pub fn execute(&self) -> Result<Greeting, GreetingError> {
         self.repository.greeting()
     }
