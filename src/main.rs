@@ -175,7 +175,12 @@ fn main() {
 {% endif %}
 {% endif %}
 
-{% if architecture == "modular" or architecture == "ddd" %}
+{% if architecture == "modular" and use_axum == false %}
+fn run_architecture() {
+    let state = state::AppState::default();
+    println!("{}", presentation::greeting(&state));
+}
+{% elsif architecture == "ddd" and use_axum == false %}
 fn run_architecture() {
     let state = state::AppState::default();
     println!("{}", presentation::greeting(&state));
