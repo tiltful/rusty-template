@@ -185,6 +185,11 @@ jobs:
         run: |
           project="${{ runner.temp }}/smoke-${{ matrix.name }}"
           test -f "$project/Cargo.toml"
+          test -f "$project/README.md"
+          grep -q '![[]CI[]]' "$project/README.md"
+          grep -q '![[]Coverage[]]' "$project/README.md"
+          grep -q '## ✨ Overview' "$project/README.md"
+          ! grep -Eq '\\{\\{|\\{%|\\{:' "$project/README.md"
           test -f "$project/LICENSE"
           test -f "$project/.env.example"
           test -f "$project/cliff.toml"
@@ -203,6 +208,9 @@ jobs:
             test ! -e "$project/NOTICE"
           fi
           if [ "${{ matrix.crate_type }}" = "lib" ]; then
+            ! grep -q '## 🐳 Docker' "$project/README.md"
+            ! grep -q '## 📦 Releases' "$project/README.md" && grep -q '## 🏗️ Library layout' "$project/README.md"
+            ! grep -q 'cargo run' "$project/README.md"
             test ! -e "$project/.github/workflows/release.yml"
             test -f "$project/src/lib.rs"
             test ! -e "$project/src/main.rs"
@@ -210,6 +218,9 @@ jobs:
             ! grep -q '^\[tasks.run\]' "$project/Makefile.toml"
             ! grep -q '^\[tasks.docker-build\]' "$project/Makefile.toml"
           else
+            grep -q '## 🐳 Docker' "$project/README.md"
+            grep -q '## 📦 Releases' "$project/README.md"
+            grep -q 'cargo run' "$project/README.md"
             test -f "$project/.github/workflows/release.yml"
             ! grep -q '__PROJECT_NAME__' "$project/.github/workflows/release.yml"
             grep -q 'smoke-${{ matrix.name }}' "$project/Cargo.toml"
@@ -220,9 +231,11 @@ jobs:
             grep -q '^\[tasks.docker-build\]' "$project/Makefile.toml"
           fi
           if [ "${{ matrix.use_config }}" = "true" ]; then
+            grep -q '## ⚙️ Configuration' "$project/README.md"
             test -f "$project/config.toml"
             grep -q 'COPY --from=builder /app/config.toml /app/config.toml' "$project/Dockerfile"
           else
+            ! grep -q '## ⚙️ Configuration' "$project/README.md"
             test ! -e "$project/config.toml"
           fi
           if [ "${{ matrix.architecture }}" = "modular" ]; then
