@@ -90,7 +90,6 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy, rustfmt
-      - uses: Swatinem/rust-cache@v2
       - name: Validate commit message format
         run: |
           python3 -m py_compile .commit-message.py
@@ -111,7 +110,8 @@ jobs:
       - name: Generate project
         run: |
           mkdir -p "${{ runner.temp }}/smoke-${{ matrix.name }}"
-          cargo generate --path . --name smoke-${{ matrix.name }}
+          cd "${{ runner.temp }}/smoke-${{ matrix.name }}"
+          cargo generate --path "$GITHUB_WORKSPACE" --name smoke-${{ matrix.name }}
           --define author_name="Tilt <git@tilt.ninja>"
           --define description="Generated template smoke test"
           --define github_username=tiltful
@@ -126,7 +126,7 @@ jobs:
           --define use_reqwest=${{ matrix.use_reqwest }}
           --define use_config=${{ matrix.use_config }}
           --${{ matrix.crate_type }}
-          --silent --destination ${{ runner.temp }}/smoke-${{ matrix.name }} --vcs none
+          --init --vcs none
       - name: Verify generated layout
         run: |
           project="${{ runner.temp }}/smoke-${{ matrix.name }}"
@@ -193,7 +193,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
       - name: Install cargo-generate
         uses: taiki-e/install-action@v2
         with:
@@ -201,7 +200,8 @@ jobs:
       - name: Generate security fixture
         run: |
           mkdir -p "${{ runner.temp }}/security-smoke"
-          cargo generate --path . --name security-smoke
+          cd "${{ runner.temp }}/security-smoke"
+          cargo generate --path "$GITHUB_WORKSPACE" --name security-smoke
           --define author_name="Tilt <git@tilt.ninja>"
           --define description="Security validation fixture"
           --define github_username=tiltful
@@ -215,7 +215,7 @@ jobs:
           --define use_redis=false
           --define use_reqwest=false
           --define use_config=false
-          --bin --silent --destination ${{ runner.temp }}/security-smoke --vcs none
+          --bin --init --vcs none
       - name: Resolve dependencies
         working-directory: ${{ runner.temp }}/security-smoke
         run: cargo generate-lockfile
