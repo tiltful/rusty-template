@@ -54,12 +54,15 @@ def validate(message: str) -> tuple[bool, str]:
     if not match or not is_gitmoji(match.group("gitmoji")):
         return False, "expected: <gitmoji> <type>(<scope>)❗: <description>"
 
+    # Trailers belong to the final paragraph only; earlier body paragraphs
+    # may legitimately contain text that resembles a trailer.
     footer_start = None
     for index in range(1, len(lines)):
-        if lines[index - 1].strip():
-            continue
+        if not lines[index - 1].strip():
+            footer_start = index
 
-        candidate = lines[index]
+    if footer_start is not None:
+        candidate = lines[footer_start]
         if BREAKING_PREFIX.match(candidate) and not any(
             candidate.startswith(f"{token}: ") or candidate.startswith(f"{token} #")
             for token in BREAKING_FOOTERS
@@ -67,27 +70,24 @@ def validate(message: str) -> tuple[bool, str]:
             return False, "BREAKING CHANGE footer token must be uppercase"
 
         if FOOTER.fullmatch(candidate):
-            footer_start = index
+            previous_was_footer = False
+            for line in lines[footer_start:]:
+                if not line.strip():
+                    return False, "blank lines are not allowed inside the footer block"
 
-    if footer_start is not None:
-        previous_was_footer = False
-        for line in lines[footer_start:]:
-            if not line.strip():
-                return False, "blank lines are not allowed inside the footer block"
-
-            footer = FOOTER.fullmatch(line)
-            if footer:
-                token = footer.group("token")
-                if token.lower().replace("-", " ") == "breaking change" and token not in BREAKING_FOOTERS:
-                    return False, "BREAKING CHANGE footer token must be uppercase"
-                if token in BREAKING_FOOTERS and not footer.group("value"):
-                    return False, "BREAKING CHANGE footer requires a description"
-                previous_was_footer = True
-            elif line[0].isspace() and previous_was_footer:
-                # Allow indented continuation lines for long trailer values.
-                continue
-            else:
-                return False, "invalid footer"
+                footer = FOOTER.fullmatch(line)
+                if footer:
+                    token = footer.group("token")
+                    if token.lower().replace("-", " ") == "breaking change" and token not in BREAKING_FOOTERS:
+                        return False, "BREAKING CHANGE footer token must be uppercase"
+                    if token in BREAKING_FOOTERS and not footer.group("value"):
+                        return False, "BREAKING CHANGE footer requires a description"
+                    previous_was_footer = True
+                elif line[0].isspace() and previous_was_footer:
+                    # Allow indented continuation lines for long trailer values.
+                    continue
+                else:
+                    return False, "invalid footer"
 
     return True, ""
 
