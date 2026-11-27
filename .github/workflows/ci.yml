@@ -1,66 +1,142 @@
+name: CI
+
 on:
   push:
-    branches:
-      - main
-  pull_request: {}
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
 
 jobs:
-  build-and-test:
+  template-validation:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        rust:
-          - stable
-          - beta
-          - nightly
-    runs-on: ${{ matrix.os }}
+        include:
+          - name: binary-default
+            crate_type: bin
+            license: MIT
+            use_tokio: true
+            use_tracing: true
+            use_axum: false
+            use_sqlx: false
+            use_redis: false
+            use_reqwest: false
+            use_config: false
+          - name: binary-axum
+            crate_type: bin
+            license: MIT
+            use_tokio: true
+            use_tracing: true
+            use_axum: true
+            use_sqlx: false
+            use_redis: false
+            use_reqwest: false
+            use_config: false
+          - name: library
+            crate_type: lib
+            license: Apache-2.0
+            use_tokio: false
+            use_tracing: false
+            use_axum: false
+            use_sqlx: false
+            use_redis: false
+            use_reqwest: false
+            use_config: false
+          - name: binary-minimal
+            crate_type: bin
+            license: MIT
+            use_tokio: false
+            use_tracing: false
+            use_axum: false
+            use_sqlx: false
+            use_redis: false
+            use_reqwest: false
+            use_config: false
+          - name: binary-integrations
+            crate_type: bin
+            license: MIT
+            use_tokio: false
+            use_tracing: true
+            use_axum: false
+            use_sqlx: true
+            use_redis: true
+            use_reqwest: true
+            use_config: true
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@master
+      - uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: ${{ matrix.rust }}
-      - name: Build
-        run: cargo build --verbose
-      - name: Test
-        run: cargo test --verbose
-
-  lint:
-    needs: build-and-test
-    strategy:
-      matrix:
-        os: [ ubuntu-latest, macos-latest, windows-latest ]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Rust with Clippy
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: stable
-          components: clippy
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@v2
+      - name: Validate commit message format
+        run: |
+          python3 -m py_compile .commit-message.py
+          printf '%s\n\n%s\n\n%s\n' '♻️ refactor(parser): simplify token handling' 'Explain why the parser change is needed.' 'Refs: #123' > /tmp/commit-message
+          python3 .commit-message.py /tmp/commit-message
+          printf '%s\\n' ':recycle: refactor(parser): simplify token handling' > /tmp/shortcode-message
+          python3 .commit-message.py /tmp/shortcode-message
+          printf '%s\n' 'refactor(parser): missing emoji' > /tmp/invalid-commit-message
+          if python3 .commit-message.py /tmp/invalid-commit-message; then
+            echo "Invalid commit header unexpectedly passed"
+            exit 1
+          fi
+      - name: Install cargo-generate
+        run: cargo install cargo-generate --locked
+      - name: Generate project
+        run: >-
+          cargo generate --path . --name smoke-${{ matrix.name }}
+          --define author_name="Tilt <git@tilt.ninja>"
+          --define description="Generated template smoke test"
+          --define github_username=tiltful
+          --define license=${{ matrix.license }}
+          --define copyright_holder=Tilt
+          --define copyright_year=2026
+          --define use_tokio=${{ matrix.use_tokio }}
+          --define use_tracing=${{ matrix.use_tracing }}
+          --define use_axum=${{ matrix.use_axum }}
+          --define use_sqlx=${{ matrix.use_sqlx }}
+          --define use_redis=${{ matrix.use_redis }}
+          --define use_reqwest=${{ matrix.use_reqwest }}
+          --define use_config=${{ matrix.use_config }}
+          --${{ matrix.crate_type }}
+          --silent --destination target/smoke-${{ matrix.name }} --vcs none
+      - name: Verify generated layout
+        run: |
+          project="target/smoke-${{ matrix.name }}"
+          test -f "$project/Cargo.toml"
+          test -f "$project/LICENSE"
+          test ! -e "$project/LICENSE-MIT"
+          test ! -e "$project/LICENSE-APACHE"
+          test ! -d "$project/scripts"
+          ! grep -Eq '<GITHUB_USER>|<PROJECT_NAME>' "$project/cliff.toml"
+          if [ "${{ matrix.crate_type }}" = "lib" ]; then
+            test ! -e "$project/.github/workflows/release.yml"
+          else
+            test -f "$project/.github/workflows/release.yml"
+            ! grep -q '__PROJECT_NAME__' "$project/.github/workflows/release.yml"
+            grep -q 'smoke-${{ matrix.name }}' "$project/Cargo.toml"
+          fi
+          if [ "${{ matrix.crate_type }}" = "lib" ]; then
+            test -f "$project/src/lib.rs"
+            test ! -e "$project/src/main.rs"
+            test ! -e "$project/Dockerfile"
+          else
+            test -f "$project/src/main.rs"
+            test ! -e "$project/src/lib.rs"
+            test -f "$project/Dockerfile"
+          fi
+      - name: Format
+        run: cargo fmt --manifest-path target/smoke-${{ matrix.name }}/Cargo.toml --all -- --check
+      - name: Check
+        run: cargo check --manifest-path target/smoke-${{ matrix.name }}/Cargo.toml --all-targets
       - name: Clippy
-        run: cargo clippy --verbose -- -D warnings
-
-  security-audit:
-    needs: build-and-test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
-      - name: Install cargo-audit
-        run: cargo install cargo-audit
-      - name: Run cargo-audit
-        run: cargo audit
-
-  dependency-checks:
-    needs: build-and-test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
-      - name: Install cargo-deny
-        run: cargo install cargo-deny
-      - name: Run cargo-deny
-        run: cargo deny check
+        run: cargo clippy --manifest-path target/smoke-${{ matrix.name }}/Cargo.toml --all-targets -- --deny warnings
+      - name: Test
+        run: cargo test --manifest-path target/smoke-${{ matrix.name }}/Cargo.toml
+      - name: Build binary Docker image
+        if: matrix.crate_type == 'bin'
+        run: docker build -t smoke-template:ci target/smoke-${{ matrix.name }}

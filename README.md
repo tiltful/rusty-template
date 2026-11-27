@@ -1,62 +1,55 @@
 <div align="center">
 
-[![Preview](/path/to/favicon.png)](https://github.com/{{github_username}}/{{project-name}})
 <h1>{{project-name}}</h1>
 
----
-[![GitHub License](https://img.shields.io/github/license/{{github_username}}/{{project-name}})](https://github.com/{{github_username}}/{{project-name}}/blob/main/LICENSE "license")
-[![Tests](https://img.shields.io/github/actions/workflow/status/{{github_username}}/{{project-name}}/ci.yml?style=flat-square&logo=github&label=Tests)](https://github.com/{{github_username}}/{{project-name}}/tests)
-[![Forks](https://custom-icon-badges.demolab.com/github/forks/{{github_username}}/{{project-name}}?logo=fork)](https://github.com/{{github_username}}/{{project-name}}/network/members)
-[![Contributors](https://custom-icon-badges.demolab.com/github/contributors/{{github_username}}/{{project-name}}?logo=people)](https://github.com/{{github_username}}/{{project-name}}/graphs/contributors)
-[![Stars](https://custom-icon-badges.demolab.com/github/stars/{{github_username}}/{{project-name}}?logo=star)](https://github.com/{{github_username}}/{{project-name}}/stargazers')
-[![Open issues](https://custom-icon-badges.demolab.com/github/issues-raw/{{github_username}}/{{project-name}}?logo=issue)](https://github.com/{{github_username}}/{{project-name}}/issues)
+{{description}}
 
+[![CI](https://github.com/{{github_username}}/{{project-name}}/actions/workflows/ci.yml/badge.svg)](https://github.com/{{github_username}}/{{project-name}}/actions/workflows/ci.yml)
+[![License](https://img.shields.io/github/license/{{github_username}}/{{project-name}})](LICENSE)
 
-[![Powered by Rust](https://custom-icon-badges.herokuapp.com/badge/-Powered%20by%20Rust-0d1620?logo=rust)](https://www.rust-lang.org/ "Powered by Rust")
 </div>
 
-___
+## Features
 
-## 🧩 Installation
-```
-git clone https://github.com/{{github_username}}/{{project-name}}.git 
-cd {{project-name}}
+- Rust 2024, stable toolchain and unsafe-code prohibition
+- Selectable Tokio, tracing, Axum, SQLx, Redis, reqwest and config dependencies
+- cargo-chef multi-stage Docker build with minimal scratch runtime
+- Formatting, Clippy, tests, auditing, changelog and cross-platform GitHub Releases
+
+## Getting started
+
+Install Rust using rustup, then run:
+
+```sh
 cargo build
+cargo test
+cargo make quality
 ```
 
-## ⚙ Configuration
-Open `conf/cfg.toml` and fill in the values
+Install cargo-make with `cargo install cargo-make`.
 
-### Setup environment variables
+Install the commit hooks with `pre-commit install --hook-type pre-commit --hook-type commit-msg`.
 
+For binary projects, push a version tag such as `v0.1.0` to build Linux, Windows and macOS binaries and publish a GitHub Release.
 
-## 🚀 Launch
-Run `cargo run` or `make start`.
+## Commit messages
 
-## 🧪 Tests
-Run `cargo test` or `make test`.
+Use Gitmoji + Conventional Commits:
 
-___
+```text
+✨ feat(api): add endpoint
 
-## 🌐 Deployment
-Run `docker-compose up -d`.
-___
+Add the endpoint and document its response format.
 
-## 🤝 Contributing
+Closes #123
+```
 
-Contributions are what make the open source community an amazing place to learn, be inspired, and create.
-Any contributions you make are **greatly appreciated**.
+Format: `<gitmoji> <type>(<scope>): <description>`.
+An optional body starts after one blank line. Optional footers start after
+another blank line and use trailer syntax, for example `Closes: #123`.
+Breaking changes use `❗` before the colon or a
+`🚨 BREAKING CHANGE: ...` footer.
 
-1. [Fork the repository](https://github.com/{{github_username}}/{{project-name}}/fork)
-2. Clone your fork `git clone https://github.com/{{github_username}}/{{project-name}}.git`
-3. Create your feature branch `git checkout -b AmazingFeature`
-4. Stage changes `git add .`
-5. Commit your changes `git commit -m 'Added some AmazingFeature'`
-6. Push to the branch `git push origin AmazingFeature`
-7. Submit a pull request
+## License
 
-## ❤️ Credits
-
-Released with ❤️ by [{{authors}}](https://github.com/{{github_username}}).
-
-<!-- generated with cargo-generate thanks by <Tilt?> -->
+Licensed under the {{license}} license. See [LICENSE](LICENSE).

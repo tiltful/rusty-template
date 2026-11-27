@@ -1,24 +1,25 @@
+default_install_hook_types: [pre-commit, commit-msg]
+
 repos:
-  - repo: https://github.com/crate-ci/committed
-    rev: v1.0.20
-    hooks:
-      - id: committed
-        name: committed
-        description: Check that the commit message is formatted correctly
   - repo: local
     hooks:
+      - id: commit-message
+        name: Gitmoji + Conventional Commit message
+        entry: python3 .commit-message.py
+        language: system
+        stages: [commit-msg]
+        pass_filenames: true
       - id: fmt
-        name: fmt
-        description: Format files with cargo fmt.
-        entry: cargo fmt
+        name: cargo fmt
+        entry: cargo fmt --all -- --check
         language: system
-        types: [ rust ]
-        args: [ "--all", "--", "--check" ]
-      - id: clippy
-        name: clippy
-        description: Lint rust sources
-        entry: cargo clippy
-        language: system
-        args: [ "--", "-W", "warnings" ]
-        types: [ rust ]
+        types: [rust]
         pass_filenames: false
+        stages: [pre-commit]
+      - id: clippy
+        name: cargo clippy
+        entry: cargo clippy --all-targets -- --deny warnings
+        language: system
+        types: [rust]
+        pass_filenames: false
+        stages: [pre-commit]

@@ -1,0 +1,2 @@
+# Commit headers use Conventional Emoji Commits; validation is performed by .commit-message.py.
+style = "none"

@@ -1,21 +1,55 @@
 [package]
-# cargo-generate template - placeholders will be replaced during generation
 name = "{{project-name}}"
-version = "0.0.0"
+version = "0.1.0"
 edition = "2024"
 authors = ["{{author_name}}"]
 description = "{{description}}"
 license = "{{license}}"
 repository = "https://github.com/{{github_username}}/{{project-name}}"
-keywords = ["rust", "template"]
-categories = ["development-tools", "command-line-utilities"]
 readme = "README.md"
 
-[dependencies]
+[lints.rust]
+unsafe_code = "forbid"
 
+[dependencies]
+anyhow = "1"
+thiserror = "2"
+async-trait = "0.1"
+futures-util = "0.3"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+{% if use_tokio or use_axum or use_sqlx or use_redis or use_reqwest %}
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "signal", "time", "sync", "net", "fs", "io-util"] }
+{% endif %}
+{% if use_tracing %}
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt", "json"] }
+tracing-error = "0.2"
+{% endif %}
+{% if use_axum %}
+axum = "0.8"
+tower-http = { version = "0.6", features = ["trace", "compression-gzip"] }
+{% endif %}
+{% if use_sqlx %}
+sqlx = { version = "0.9", default-features = false, features = ["runtime-tokio", "postgres", "macros", "chrono", "uuid", "migrate", "tls-rustls-ring-webpki"] }
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+uuid = { version = "1", features = ["serde", "v7"] }
+{% endif %}
+{% if use_redis %}
+redis = { version = "1", default-features = false, features = ["tokio-comp", "connection-manager"] }
+{% endif %}
+{% if use_reqwest %}
+reqwest = { version = "0.13", default-features = false, features = ["json", "rustls", "query"] }
+{% endif %}
+{% if use_config %}
+config = "0.15"
+dotenvy = "0.15"
+{% endif %}
+{% if crate_type == "lib" %}
 [dev-dependencies]
-criterion = "0.7.0"
+criterion = "0.7"
 
 [[bench]]
 name = "lib"
 harness = false
+{% endif %}

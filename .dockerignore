@@ -1,10 +1,15 @@
-# Ignore all files by default
-*
+.git
+.github
+.idea
+.vscode
+target
+dist
+.data
+.env
+.env.*
+!.env.example
+*.log
 
-# Allow cargo files
-!Cargo.toml
-!Cargo.lock
-
-# Allow src directory
-!src/
-
+__pycache__
+*.py[cod]
+.venv
