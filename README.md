@@ -35,11 +35,14 @@ Generated from [rusty-template](https://github.com/tiltful/rusty-template), a ba
 - 🧱 **Architecture profiles** — minimal, modular or domain-driven design (DDD)
 - 🧩 **Optional integrations** — Tokio, Axum, tracing, SQLx, Redis, reqwest and typed configuration
 - ⚙️ **Configuration** — optional TOML and .env files with environment-variable overrides
+{% if crate_type == "bin" %}
 - 📦 **Container-ready** — cargo-chef multi-stage build, static musl binary and minimal scratch runtime
+- 🏷️ **Release automation** — cross-platform GitHub Releases with checksums and an SBOM
+{% endif %}
 - 🔍 **Quality gates** — formatting, strict Clippy, tests, documentation and dependency hygiene
 - 🔐 **Security-minded** — dependency auditing, license policy and CycloneDX SBOM generation
-- 🏷️ **Release automation** — changelog generation and cross-platform GitHub Releases for binary projects
 
+{% if crate_type == "bin" %}
 ## 🏗️ Architecture
 
 Choose the profile that fits the project:
@@ -51,6 +54,11 @@ Choose the profile that fits the project:
 | **ddd** | Domain model, validated value objects, repository port, use case and infrastructure adapter | Domain-heavy applications with clear boundaries |
 
 The examples are intentionally small. Treat them as useful boundaries to build on, not a requirement to create a layer for every function. Axum can be enabled independently; with modular and DDD profiles, routes receive typed application state.
+{% else %}
+## 🏗️ Library layout
+
+The generated library starts with a small documented public API, a unit-test module and Rustdoc examples. Extend the public surface deliberately and keep implementation details private until they need to be exposed.
+{% endif %}
 
 ## 🧰 Tech stack
 
@@ -96,13 +104,19 @@ cargo generate --path .
 
 The prompts let you choose the package type, architecture profile, license and optional integrations. Review the generated files and initialize your own Git repository before pushing.
 
-### Build and run
+### Build and test
 
 ```sh
 cargo build
 cargo test
+```
+{% if crate_type == "bin" %}
+Run the application locally:
+
+```sh
 cargo run
 ```
+{% endif %}
 
 Run the standard local quality checks:
 
@@ -116,9 +130,10 @@ For the full CI-equivalent suite, install the optional audit and SBOM tools list
 cargo make ci
 ```
 
+{% if use_config %}
 ## ⚙️ Configuration
 
-When the config + dotenvy integration is enabled, settings are loaded in this order:
+Settings are loaded in this order:
 
 1. config.toml (optional)
 2. .env (optional)
@@ -139,7 +154,9 @@ port = 3000
 ```
 
 Keep secrets out of version control. Use environment variables or your deployment platform's secret manager.
+{% endif %}
 
+{% if crate_type == "bin" %}
 ## 🐳 Docker
 
 The included Dockerfile uses cargo-chef for dependency planning, builds a static musl executable and copies it into a minimal scratch runtime. The container runs as a non-root user.
@@ -148,6 +165,7 @@ The included Dockerfile uses cargo-chef for dependency planning, builds a static
 docker build -t {{project-name}} .
 docker run --rm -p 3000:3000 {{project-name}}
 ```
+{% endif %}
 
 ## 🧪 Quality & security
 
@@ -163,8 +181,6 @@ docker run --rm -p 3000:3000 {{project-name}}
 | cargo make sbom | CycloneDX software bill of materials |
 | cargo make quality | Core local quality checks |
 | cargo make ci | Full CI task set |
-
-Coverage is collected with cargo-llvm-cov in GitHub Actions and uploaded to Codecov. The badge reports measured coverage; it may remain unavailable until the repository is connected to Codecov and its first report has been uploaded. The upload is configured not to fail CI when Codecov is unavailable.
 
 Install the optional tools used by the full CI task set:
 
