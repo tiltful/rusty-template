@@ -109,7 +109,8 @@ jobs:
         with:
           tool: cargo-generate
       - name: Generate project
-        run: >-
+        run: |
+          mkdir -p "${{ runner.temp }}/smoke-${{ matrix.name }}"
           cargo generate --path . --name smoke-${{ matrix.name }}
           --define author_name="Tilt <git@tilt.ninja>"
           --define description="Generated template smoke test"
@@ -198,7 +199,8 @@ jobs:
         with:
           tool: cargo-generate
       - name: Generate security fixture
-        run: >-
+        run: |
+          mkdir -p "${{ runner.temp }}/security-smoke"
           cargo generate --path . --name security-smoke
           --define author_name="Tilt <git@tilt.ninja>"
           --define description="Security validation fixture"
