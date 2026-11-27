@@ -1,5 +1,7 @@
 name: CI
 
+# Validate the actual generated project variants, including optional integrations.
+
 on:
   push:
     branches: [main]
