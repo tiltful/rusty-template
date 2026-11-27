@@ -4,6 +4,18 @@
 
 #![forbid(unsafe_code)]
 
+{% if architecture == "modular" %}
+mod app;
+mod presentation;
+mod state;
+{% elsif architecture == "ddd" %}
+mod application;
+mod domain;
+mod infrastructure;
+mod presentation;
+mod state;
+{% endif %}
+
 {% if use_tracing %}
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 
@@ -41,7 +53,11 @@ fn init_integrations() -> anyhow::Result<()> {
 }
 {% endif %}
 {% if use_axum %}
+{% if architecture == "minimal" %}
 use axum::{routing::get, Router};
+{% else %}
+use axum::{extract::State, routing::get, Router};
+{% endif %}
 use tower_http::compression::CompressionLayer;
 {% if use_tracing %}
 use tower_http::trace::TraceLayer;
@@ -82,9 +98,22 @@ async fn main() -> anyhow::Result<()> {
     init_integrations()?;
     {% endif %}
 
+{% if architecture == "minimal" %}
     let app = Router::new()
         .route("/", get(|| async { "Hello, world!" }))
         .layer(CompressionLayer::new());
+{% else %}
+    let state = state::AppState::default();
+    let app = Router::new()
+        .route(
+            "/",
+            get(|State(state): State<state::AppState>| async move {
+                presentation::greeting(&state)
+            }),
+        )
+        .with_state(state)
+        .layer(CompressionLayer::new());
+{% endif %}
     {% if use_tracing %}
     let app = app.layer(TraceLayer::new_for_http());
     {% endif %}
@@ -110,6 +139,9 @@ async fn main() -> anyhow::Result<()> {
     {% if use_config or use_sqlx or use_redis or use_reqwest %}
     init_integrations()?;
     {% endif %}
+    {% if architecture != "minimal" %}
+    run_architecture();
+    {% endif %}
     Ok(())
 }
 {% else %}
@@ -119,7 +151,9 @@ fn main() -> anyhow::Result<()> {
     init_tracing();
     {% endif %}
     init_integrations()?;
-    {% if use_tracing %}
+    {% if architecture != "minimal" %}
+    run_architecture();
+    {% elsif use_tracing %}
     tracing::info!("Application started");
     {% else %}
     println!("Hello from {{project-name}}!");
