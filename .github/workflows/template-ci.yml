@@ -189,7 +189,9 @@ jobs:
           grep -q '![[]CI[]]' "$project/README.md"
           grep -q '![[]Coverage[]]' "$project/README.md"
           grep -q '## ✨ Overview' "$project/README.md"
-          ! grep -Eq '\\{\\{|\\{%|\\{:' "$project/README.md"
+          ! grep -Fq '{{' "$project/README.md"
+          ! grep -Fq '{%' "$project/README.md"
+          ! grep -Fq '{:' "$project/README.md"
           test -f "$project/LICENSE"
           test -f "$project/.env.example"
           test -f "$project/cliff.toml"
@@ -209,7 +211,8 @@ jobs:
           fi
           if [ "${{ matrix.crate_type }}" = "lib" ]; then
             ! grep -q '## 🐳 Docker' "$project/README.md"
-            ! grep -q '## 📦 Releases' "$project/README.md" && grep -q '## 🏗️ Library layout' "$project/README.md"
+            grep -q 'This project is configured as a Rust library' "$project/README.md"
+            grep -q '## 🏗️ Library layout' "$project/README.md"
             ! grep -q 'cargo run' "$project/README.md"
             test ! -e "$project/.github/workflows/release.yml"
             test -f "$project/src/lib.rs"
