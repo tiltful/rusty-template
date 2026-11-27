@@ -36,24 +36,27 @@ def validate(message: str) -> tuple[bool, str]:
     if not match or not is_gitmoji(match.group("gitmoji")):
         return False, "expected: <gitmoji> <type>(<scope>)❗: <description>"
 
-    # The final paragraph is the footer block only when its first line has
-    # a valid trailer token and separator. All earlier paragraphs are body.
-    blocks = re.split(r"\n[ \t]*\n", "\n".join(lines[1:]))
-    if blocks and blocks[-1].strip():
-        footer_lines = blocks[-1].splitlines()
-        first_footer = FOOTER.fullmatch(footer_lines[0])
-        if first_footer:
-            for index, line in enumerate(footer_lines):
-                if not line.strip():
-                    return False, "blank lines are not allowed inside the footer block"
-                footer = FOOTER.fullmatch(line)
-                if footer:
-                    if footer.group("token") in ("🚨 BREAKING CHANGE", "BREAKING-CHANGE"):
-                        if footer.group("token") == "🚨 BREAKING CHANGE" and not footer.group("value"):
-                            return False, "BREAKING CHANGE footer requires a description"
-                elif index == 0:
-                    return False, "invalid footer"
-                # Non-token lines are valid wrapped continuation lines.
+    # A footer block starts after a blank line and begins with a valid trailer.
+    # This also handles a footer immediately after the header (no body).
+    footer_start = None
+    for index in range(1, len(lines) - 1):
+        if not lines[index].strip() and FOOTER.fullmatch(lines[index + 1]):
+            footer_start = index + 1
+
+    if footer_start is not None:
+        for index, line in enumerate(lines[footer_start:]):
+            if not line.strip():
+                return False, "blank lines are not allowed inside the footer block"
+            footer = FOOTER.fullmatch(line)
+            if footer:
+                token = footer.group("token")
+                if token.lower() == "breaking-change" and token != "BREAKING-CHANGE":
+                    return False, "BREAKING-CHANGE footer token must be uppercase"
+                if token == "🚨 BREAKING CHANGE" and not footer.group("value"):
+                    return False, "BREAKING CHANGE footer requires a description"
+            elif index == 0:
+                return False, "invalid footer"
+            # Non-token lines after the first trailer are wrapped footer values.
     return True, ""
 
 

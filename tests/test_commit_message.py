@@ -52,8 +52,16 @@ class CommitMessageTests(unittest.TestCase):
     def test_rejects_empty_description(self):
         self.assertNotEqual(validate("♻️ refactor(parser): \n").returncode, 0)
 
+    def test_footer_without_body(self):
+        message = "♻️ refactor(api): change token format\n\nRefs: #123\n"
+        self.assertEqual(validate(message).returncode, 0)
+
     def test_rejects_lowercase_breaking_footer(self):
         message = "♻️ refactor(api): change token format\n\nbreaking change: old tokens are rejected\n"
+        self.assertNotEqual(validate(message).returncode, 0)
+
+    def test_rejects_lowercase_hyphenated_breaking_footer(self):
+        message = "♻️ refactor(api): change token format\n\nbreaking-change: old tokens are rejected\n"
         self.assertNotEqual(validate(message).returncode, 0)
 
 

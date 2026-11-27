@@ -29,10 +29,12 @@ description = "Build release"
 command = "cargo"
 args = ["build", "--release"]
 
+{% if crate_type == "bin" %}
 [tasks.run]
 description = "Run binary crate"
 command = "cargo"
 args = ["run"]
+{% endif %}
 
 [tasks.fmt]
 description = "Format code"
@@ -127,6 +129,7 @@ description = "Execute major release"
 command = "cargo"
 args = ["release", "major", "--execute"]
 
+{% if crate_type == "bin" %}
 [tasks.docker-build]
 description = "Build static scratch image"
 command = "docker"
@@ -136,3 +139,4 @@ args = ["build", "-t", "{{project-name}}:local", "."]
 description = "Run container locally"
 command = "docker"
 args = ["run", "--rm", "-p", "3000:3000", "--env-file", ".env.example", "--name", "{{project-name}}", "{{project-name}}:local"]
+{% endif %}
