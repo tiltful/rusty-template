@@ -134,7 +134,10 @@ async fn shutdown_signal() {
         ) {
             Ok(signal) => signal,
             Err(error) => {
-                eprintln!("failed to install SIGTERM handler: {error}");
+                eprintln!("failed to install SIGTERM handler: {error}; waiting for Ctrl+C instead");
+                if let Err(error) = tokio::signal::ctrl_c().await {
+                    eprintln!("failed to listen for Ctrl+C: {error}");
+                }
                 return;
             }
         };
