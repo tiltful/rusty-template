@@ -25,6 +25,18 @@ Install Rust using [rustup](https://rustup.rs/) and cargo-make:
 cargo install cargo-make
 ```
 
+Generate a project with the interactive prompts:
+
+```sh
+cargo generate --git https://github.com/tiltful/rusty-template
+```
+
+Or use a local checkout while developing the template:
+
+```sh
+cargo generate --path .
+```
+
 Then build and test:
 
 ```sh
@@ -41,7 +53,7 @@ cargo install git-cliff
 cargo install cargo-release
 ```
 
-Install the commit hooks with [pre-commit](https://pre-commit.com/):
+Install the commit hooks with [pre-commit](https://pre-commit.com/). The template validates commit headers, optional bodies, trailer footers, and breaking-change markers:
 
 ```sh
 pre-commit install --hook-type pre-commit --hook-type commit-msg

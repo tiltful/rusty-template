@@ -79,3 +79,6 @@ ignore = ["src/main.rs", "Dockerfile", ".dockerignore", ".github/workflows/relea
 
 [conditional.'license == "MIT"']
 ignore = ["NOTICE"]
+
+[hooks]
+init = ["scripts/init.rhai"]
