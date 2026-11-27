@@ -81,7 +81,7 @@ default = false
 ignore = ["src/lib.rs", "benches"]
 
 [conditional.'crate_type == "lib"']
-ignore = ["src/main.rs", "Dockerfile", ".dockerignore", ".github/workflows/release.yml"]
+ignore = ["src/main.rs", "Dockerfile", ".dockerignore", ".github/workflows/release.yml", "src/state.rs", "src/app.rs", "src/presentation.rs", "src/domain", "src/infrastructure", "src/application"]
 
 [conditional.'license == "MIT"']
 ignore = ["NOTICE"]
