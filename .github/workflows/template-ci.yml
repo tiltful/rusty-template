@@ -125,10 +125,10 @@ jobs:
           --define use_reqwest=${{ matrix.use_reqwest }}
           --define use_config=${{ matrix.use_config }}
           --${{ matrix.crate_type }}
-          --silent --destination target/smoke-${{ matrix.name }} --vcs none
+          --silent --destination ${{ runner.temp }}/smoke-${{ matrix.name }} --vcs none
       - name: Verify generated layout
         run: |
-          project="target/smoke-${{ matrix.name }}"
+          project="${{ runner.temp }}/smoke-${{ matrix.name }}"
           test -f "$project/Cargo.toml"
           test -f "$project/LICENSE"
           test -f "$project/.env.example"
@@ -167,24 +167,24 @@ jobs:
           python3 - <<'PY'
           import pathlib
           import tomllib
-          project = pathlib.Path("target/smoke-${{ matrix.name }}")
+          project = pathlib.Path("${{ runner.temp }}/smoke-${{ matrix.name }}")
           for name in ("Cargo.toml", "Makefile.toml", "cliff.toml", "release.toml", "deny.toml", ".committed.toml", "rust-toolchain.toml"):
               with (project / name).open("rb") as file:
                   tomllib.load(file)
           PY
       - name: Format
-        run: cargo fmt --manifest-path target/smoke-${{ matrix.name }}/Cargo.toml --all -- --check
+        run: cargo fmt --manifest-path ${{ runner.temp }}/smoke-${{ matrix.name }}/Cargo.toml --all -- --check
       - name: Check
-        run: cargo check --manifest-path target/smoke-${{ matrix.name }}/Cargo.toml --all-targets
+        run: cargo check --manifest-path ${{ runner.temp }}/smoke-${{ matrix.name }}/Cargo.toml --all-targets
       - name: Clippy
-        run: cargo clippy --manifest-path target/smoke-${{ matrix.name }}/Cargo.toml --all-targets -- --deny warnings
+        run: cargo clippy --manifest-path ${{ runner.temp }}/smoke-${{ matrix.name }}/Cargo.toml --all-targets -- --deny warnings
       - name: Test
-        run: cargo test --manifest-path target/smoke-${{ matrix.name }}/Cargo.toml
+        run: cargo test --manifest-path ${{ runner.temp }}/smoke-${{ matrix.name }}/Cargo.toml
       - name: Rustdoc
-        run: cargo doc --manifest-path target/smoke-${{ matrix.name }}/Cargo.toml --no-deps
+        run: cargo doc --manifest-path ${{ runner.temp }}/smoke-${{ matrix.name }}/Cargo.toml --no-deps
       - name: Build binary Docker image
         if: matrix.crate_type == 'bin'
-        run: docker build -t smoke-template:ci target/smoke-${{ matrix.name }}
+        run: docker build -t smoke-template:ci ${{ runner.temp }}/smoke-${{ matrix.name }}
 
   dependency-security:
     name: Dependency security and SBOM
@@ -213,25 +213,25 @@ jobs:
           --define use_redis=false
           --define use_reqwest=false
           --define use_config=false
-          --bin --silent --destination target/security-smoke --vcs none
+          --bin --silent --destination ${{ runner.temp }}/security-smoke --vcs none
       - name: Resolve dependencies
-        working-directory: target/security-smoke
+        working-directory: ${{ runner.temp }}/security-smoke
         run: cargo generate-lockfile
       - name: Install security tools
         uses: taiki-e/install-action@v2
         with:
           tool: cargo-audit,cargo-deny,cargo-cyclonedx
       - name: Audit advisories
-        working-directory: target/security-smoke
+        working-directory: ${{ runner.temp }}/security-smoke
         run: cargo audit
       - name: Check licenses, bans and sources
-        working-directory: target/security-smoke
+        working-directory: ${{ runner.temp }}/security-smoke
         run: cargo deny check
       - name: Generate CycloneDX SBOM
-        working-directory: target/security-smoke
+        working-directory: ${{ runner.temp }}/security-smoke
         run: cargo cyclonedx --format json --override-filename sbom.json
       - uses: actions/upload-artifact@v4
         with:
           name: cyclonedx-sbom
-          path: target/security-smoke/sbom.json
+          path: ${{ runner.temp }}/security-smoke/sbom.json
           if-no-files-found: error
