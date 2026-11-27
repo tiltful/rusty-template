@@ -84,6 +84,22 @@ class CommitMessageTests(unittest.TestCase):
     def test_rejects_uppercase_type(self):
         self.assertNotEqual(validate("✨ FEAT: add feature\n").returncode, 0)
 
+    def test_rejects_invalid_line_after_footer(self):
+        message = (
+            "♻️ refactor(api): change token format\n\n"
+            "Refs: #123\n"
+            "This line is not a trailer.\n"
+        )
+        self.assertNotEqual(validate(message).returncode, 0)
+
+    def test_rejects_blank_line_inside_footer_block(self):
+        message = "♻️ refactor(api): change token format\n\nRefs: #123\n\nCloses: #456\n"
+        self.assertNotEqual(validate(message).returncode, 0)
+
+    def test_accepts_indented_footer_continuation(self):
+        message = "♻️ refactor(api): change token format\n\nRefs: #123\n continued context\n"
+        self.assertEqual(validate(message).returncode, 0)
+
 
 if __name__ == "__main__":
     unittest.main()
