@@ -12,6 +12,7 @@ Install stable Rust with [rustup](https://rustup.rs/), then install the project 
 - cargo-deny: `cargo install cargo-deny`
 - git-cliff: `cargo install git-cliff`
 - cargo-release: `cargo install cargo-release`
+- cargo-nextest: `cargo install cargo-nextest --locked`
 
 Install the Git hooks:
 
